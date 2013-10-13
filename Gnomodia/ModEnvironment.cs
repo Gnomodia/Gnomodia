@@ -6,9 +6,9 @@ using System.Text;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Faark.Util;
+using Gnomodia.Util;
 
-namespace Faark.Gnomoria.Modding
+namespace Gnomodia
 {
     /// <summary>
     /// Serves as some kind of "mod registery". Since we have to make sure that every mod is instanciated only once,

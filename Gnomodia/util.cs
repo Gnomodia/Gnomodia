@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 
-namespace Faark.Util
+namespace Gnomodia.Util
 {
     public static class DirectoryExtensions
     {

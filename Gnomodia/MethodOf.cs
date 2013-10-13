@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
-using Faark.Gnomoria.Modding;
+using Gnomodia;
 
-namespace Faark.Gnomoria.Modding
+namespace Gnomodia
 {
     //http://web.archive.org/web/20120124210217/http://evain.net/blog/articles/2010/05/05/parameterof-propertyof-methodof
 

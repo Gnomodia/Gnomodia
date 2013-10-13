@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace GnomoriaModUI
+namespace GnomodiaUI
 {
     class GameLauncher
     {
@@ -43,7 +43,7 @@ namespace GnomoriaModUI
                 handleStuff_Enter();
                 if (!(e.Exception is System.Threading.ThreadAbortException))
                 {
-                    Faark.Gnomoria.Modding.RuntimeModController.Log.Write("FirstChanceException", e.Exception);
+                    Gnomodia.RuntimeModController.Log.Write("FirstChanceException", e.Exception);
                     lastFirstChanceException = e.Exception;
                 }
                 handleStuff_Leave();
@@ -53,11 +53,11 @@ namespace GnomoriaModUI
                 handleStuff_Enter();
                 if (e.ExceptionObject == lastFirstChanceException)
                 {
-                    Faark.Gnomoria.Modding.RuntimeModController.Log.Write("First Chance Exception is not handled" + (e.IsTerminating ? ", terminating." : "."));
+                    Gnomodia.RuntimeModController.Log.Write("First Chance Exception is not handled" + (e.IsTerminating ? ", terminating." : "."));
                 }
                 else
                 {
-                    Faark.Gnomoria.Modding.RuntimeModController.Log.Write(e.IsTerminating ? "UnhandledException (t)" : "UnhandledException", e.ExceptionObject as Exception);
+                    Gnomodia.RuntimeModController.Log.Write(e.IsTerminating ? "UnhandledException (t)" : "UnhandledException", e.ExceptionObject as Exception);
                 }
                 handleStuff_Leave();
             }
@@ -68,7 +68,7 @@ namespace GnomoriaModUI
                 {
                     AppDomain.CurrentDomain.UnhandledException -= CurrentDomain_UnhandledException;
                     AppDomain.CurrentDomain.FirstChanceException -= CurrentDomain_FirstChanceException;
-                    Faark.Gnomoria.Modding.RuntimeModController.Log.Write("Tried to handle an error while already doing this.");
+                    Gnomodia.RuntimeModController.Log.Write("Tried to handle an error while already doing this.");
                     throw new Exception("Tried to handle an error while already doing it...");
                 }
                 isCurrentlyHandlingSth = true;
@@ -106,14 +106,14 @@ namespace GnomoriaModUI
             }
             void CustomErrorHandler(Exception err)
             {
-                Faark.Gnomoria.Modding.RuntimeModController.Log.Write("UnhandledException", err);
+                Gnomodia.RuntimeModController.Log.Write("UnhandledException", err);
                 System.Windows.Forms.MessageBox.Show(
                     "Sorry, but Gnomoria has crashed." + Environment.NewLine
                     + Environment.NewLine
                     + Environment.NewLine
                     + "Check out these logfiles for more information:" + Environment.NewLine
-                    + Faark.Gnomoria.Modding.RuntimeModController.Log.GetLogfile().FullName + Environment.NewLine
-                    + Faark.Gnomoria.Modding.RuntimeModController.Log.GetGameLogfile().FullName,
+                    + Gnomodia.RuntimeModController.Log.GetLogfile().FullName + Environment.NewLine
+                    + Gnomodia.RuntimeModController.Log.GetGameLogfile().FullName,
                     "Gnomoria [modded] has crashed.");
             }
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
-using Faark.Gnomoria.Modding;
+using Gnomodia;
 
 namespace Faark.Gnomoria.Mods
 {
@@ -26,7 +26,7 @@ namespace Faark.Gnomoria.Mods
         {
             get
             {
-                yield return Modding.HelperMods.ModRightClickMenu.Instance;
+                yield return Gnomodia.HelperMods.ModRightClickMenu.Instance;
             }
         }
         public override void Initialize_PreGame()

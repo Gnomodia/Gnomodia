@@ -5,12 +5,12 @@ using System.Text;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Faark.Gnomoria.Modding;
+using Gnomodia;
 using Game;
 using Game.GUI;
 using Game.GUI.Controls;
 using GameLibrary;
-using Faark.Util;
+using Gnomodia.Util;
 using Microsoft.Xna.Framework;
 
 namespace Faark.Gnomoria.Mods

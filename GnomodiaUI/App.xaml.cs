@@ -5,7 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Windows;
 
-namespace GnomoriaModUI
+namespace GnomodiaUI
 {
     /// <summary>
     /// Interaction logic for App.xaml

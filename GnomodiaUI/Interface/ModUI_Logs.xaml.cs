@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace GnomoriaModUI
+namespace GnomodiaUI
 {
     /// <summary>
     /// Interaction logic for ModUI_Logs.xaml

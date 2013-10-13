@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
-using Faark.Gnomoria.Modding;
+using Gnomodia;
 using Game;
 using Game.GUI;
 using Game.GUI.Controls;
 using GameLibrary;
-using Faark.Util;
+using Gnomodia.Util;
 using Microsoft.Xna.Framework;
 
 namespace Faark.Gnomoria.Mods
@@ -51,13 +51,13 @@ namespace Faark.Gnomoria.Mods
         {
             get
             {
-                yield return Modding.HelperMods.ModRightClickMenu.Instance;
+                yield return Gnomodia.HelperMods.ModRightClickMenu.Instance;
             }
         }
         public override void Initialize_PreGeneration()
         {
-            Modding.HelperMods.ModRightClickMenu.AddItem("Toggle Developer Console", ToggleDeveloperConsole);
-            Modding.HelperMods.ModRightClickMenu.AddItem("Item spawn menu", ItemSpawnMenu);
+            Gnomodia.HelperMods.ModRightClickMenu.AddItem("Toggle Developer Console", ToggleDeveloperConsole);
+            Gnomodia.HelperMods.ModRightClickMenu.AddItem("Item spawn menu", ItemSpawnMenu);
             base.Initialize_PreGeneration();
         }
         private static ConsoleWindow console;

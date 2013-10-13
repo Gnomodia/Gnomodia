@@ -7,11 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Reflection;
-using Faark.Gnomoria.Modding;
-using Faark.Util;
+using Gnomodia;
+using Gnomodia.Util;
 using System.Threading.Tasks;
 
-namespace GnomoriaModUI
+namespace GnomodiaUI
 {
     public partial class Form1 : Form
     {

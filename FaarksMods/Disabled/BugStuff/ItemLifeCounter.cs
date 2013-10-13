@@ -5,9 +5,9 @@ using System.Reflection;
 using System.Text;
 using Game;
 using GameLibrary;
-using Faark.Gnomoria.Modding;
-using Faark.Util;
-using Faark.Util.Serialization;
+using Gnomodia;
+using Gnomodia.Util;
+using Gnomodia.Util.Serialization;
 
 namespace Faark.Gnomoria.Mods.BugStuff
 {

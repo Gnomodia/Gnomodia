@@ -6,10 +6,10 @@ using System.Text;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Faark.Util;
+using Gnomodia.Util;
 
 
-namespace Faark.Gnomoria.Modding
+namespace Gnomodia
 {
     /// <summary>
     /// Allows you to call your own method instead of a specific object constructor in selected functions

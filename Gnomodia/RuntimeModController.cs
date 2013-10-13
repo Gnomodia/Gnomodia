@@ -5,9 +5,9 @@ using System.Text;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Faark.Util;
+using Gnomodia.Util;
 
-namespace Faark.Gnomoria.Modding
+namespace Gnomodia
 {   
 
 

@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Dynamic;
 using System.Reflection;
-using Faark.Util;
-using Faark.Util.Serialization;
+using Gnomodia.Util;
+using Gnomodia.Util.Serialization;
 
 using Game;
 using GameLibrary;

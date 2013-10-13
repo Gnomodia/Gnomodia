@@ -6,9 +6,9 @@ using System.Text;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Faark.Util;
+using Gnomodia.Util;
 
-namespace Faark.Gnomoria.Modding
+namespace Gnomodia
 {
     [DataContract]
     public class ModType
@@ -128,7 +128,7 @@ namespace Faark.Gnomoria.Modding
             m_setupData = mod.SetupData;
             m_dllHash = new System.IO.FileInfo(new System.Uri(Type.Assembly.CodeBase).LocalPath).GenerateMD5Hash();
             string refPath;
-            if (Faark.Util.FileExtensions.GetRelativePath(System.IO.Directory.GetCurrentDirectory(), Type.Assembly.CodeBase, out refPath))
+            if (Util.FileExtensions.GetRelativePath(System.IO.Directory.GetCurrentDirectory(), Type.Assembly.CodeBase, out refPath))
             {
                 m_assemblyFileName = refPath;
             }

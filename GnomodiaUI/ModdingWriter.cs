@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using Faark.Gnomoria.Modding;
-using Faark.Util;
+using Gnomodia;
+using Gnomodia.Util;
 
-namespace GnomoriaModUI
+namespace GnomodiaUI
 {
     //[Serializable]
     public class ModdingEnvironmentWriter

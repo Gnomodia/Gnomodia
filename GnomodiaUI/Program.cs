@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace GnomoriaModUI
+namespace GnomodiaUI
 {
     static class Program
     {
@@ -40,7 +40,7 @@ namespace GnomoriaModUI
                 switch (2)
                 {
                     case 0:
-                        GnomoriaModUI.App.Main();
+                        App.Main();
                         break;
                     case 1:
                         //Application.EnableVisualStyles();

@@ -1,4 +1,4 @@
-﻿<UserControl xmlns:my="clr-namespace:GnomoriaModUI"  x:Class="GnomoriaModUI.ModUI_LocalMods"
+﻿<UserControl xmlns:my="clr-namespace:GnomodiaUI"  x:Class="GnomodiaUI.ModUI_LocalMods"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 

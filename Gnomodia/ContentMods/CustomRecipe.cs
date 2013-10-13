@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Dynamic;
-using Faark.Util;
-using Faark.Util.Serialization;
+using Gnomodia.Util;
+using Gnomodia.Util.Serialization;
 
 using Game;
 using GameLibrary;

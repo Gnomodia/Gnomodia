@@ -5,14 +5,14 @@ using System.Text;
 using System.Dynamic;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Faark.Util;
-using Faark.Util.Serialization;
+using Gnomodia.Util;
+using Gnomodia.Util.Serialization;
 
 using Game;
 using GameLibrary;
 using Microsoft.Xna.Framework;
 
-namespace Faark.Gnomoria.Modding.HelperMods
+namespace Gnomodia.HelperMods
 {
     public class ModRightClickMenu: SupportMod
     {

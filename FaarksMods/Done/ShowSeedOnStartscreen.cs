@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
-using Faark.Gnomoria.Modding;
-using Faark.Util;
+using Gnomodia;
+using Gnomodia.Util;
 
 namespace Faark.Gnomoria.Mods
 {

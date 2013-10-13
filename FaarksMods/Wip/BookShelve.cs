@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Faark.Gnomoria.Modding;
-using Faark.Gnomoria.Modding.ContentMods;
+using Gnomodia;
+using Gnomodia.ContentMods;
 using Game;
 using Game.GUI;
 using Game.GUI.Controls;
 using GameLibrary;
-using Faark.Util;
+using Gnomodia.Util;
 using Microsoft.Xna.Framework;
 
 namespace Faark.Gnomoria.Mods

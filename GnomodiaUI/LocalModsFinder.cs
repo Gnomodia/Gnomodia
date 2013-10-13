@@ -7,10 +7,10 @@ using System.Windows.Forms;
 using System.Linq;
 using System.Text;
 using System.Reflection;
-using Faark.Gnomoria.Modding;
-using Faark.Util;
+using Gnomodia;
+using Gnomodia.Util;
 
-namespace GnomoriaModUI
+namespace GnomodiaUI
 {
     internal class LocalModsFinder
     {
@@ -116,7 +116,7 @@ namespace GnomoriaModUI
                     {
                         var mod_types = assembly.GetTypes().Where(t =>
                         {
-                            return typeof(IMod).IsAssignableFrom(t) && !(typeof(Faark.Gnomoria.Modding.SupportMod).IsAssignableFrom(t));
+                            return typeof(IMod).IsAssignableFrom(t) && !(typeof(Gnomodia.SupportMod).IsAssignableFrom(t));
                         });
                         foreach (var mod_type in mod_types)
                         {

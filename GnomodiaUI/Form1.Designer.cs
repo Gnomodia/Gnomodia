@@ -1,4 +1,4 @@
-﻿namespace GnomoriaModUI
+﻿namespace GnomodiaUI
 {
     partial class Form1
     {
@@ -104,7 +104,7 @@
             this.pictureBox_loader.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.pictureBox_loader.BackColor = System.Drawing.Color.White;
             this.pictureBox_loader.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.pictureBox_loader.Image = global::GnomoriaModUI.Properties.Resources.loader1;
+            this.pictureBox_loader.Image = global::GnomodiaUI.Properties.Resources.loader1;
             this.pictureBox_loader.Location = new System.Drawing.Point(200, 186);
             this.pictureBox_loader.Name = "pictureBox_loader";
             this.pictureBox_loader.Size = new System.Drawing.Size(31, 31);

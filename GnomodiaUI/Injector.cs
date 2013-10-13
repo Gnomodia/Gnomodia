@@ -5,10 +5,10 @@ using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
-using Faark.Gnomoria.Modding;
-using Faark.Util;
+using Gnomodia;
+using Gnomodia.Util;
 
-namespace GnomoriaModUI
+namespace GnomodiaUI
 {
     static class MethodBodyExpands
     {
@@ -754,33 +754,33 @@ namespace GnomoriaModUI
             {
                 throw new Exception("Modification is null.");
             }
-            else if (modification is Faark.Gnomoria.Modding.MethodHook)
+            else if (modification is Gnomodia.MethodHook)
             {
-                Inject_Hook(modification as Faark.Gnomoria.Modding.MethodHook);
+                Inject_Hook(modification as Gnomodia.MethodHook);
             }
-            else if (modification is Faark.Gnomoria.Modding.MethodAddVirtual)
+            else if (modification is Gnomodia.MethodAddVirtual)
             {
-                Inject_Virtual(modification as Faark.Gnomoria.Modding.MethodAddVirtual);
+                Inject_Virtual(modification as Gnomodia.MethodAddVirtual);
             }
-            else if (modification is Faark.Gnomoria.Modding.MethodRefHook)
+            else if (modification is Gnomodia.MethodRefHook)
             {
-                Inject_RefHook(modification as Faark.Gnomoria.Modding.MethodRefHook);
+                Inject_RefHook(modification as Gnomodia.MethodRefHook);
             }
-            else if (modification is Faark.Gnomoria.Modding.EnumAddElement)
+            else if (modification is Gnomodia.EnumAddElement)
             {
-                Inject_AddEnumElement(modification as Faark.Gnomoria.Modding.EnumAddElement);
+                Inject_AddEnumElement(modification as Gnomodia.EnumAddElement);
             }
-            else if (modification is Faark.Gnomoria.Modding.ClassChangeBase)
+            else if (modification is Gnomodia.ClassChangeBase)
             {
-                Inject_ClassChangeBase(modification as Faark.Gnomoria.Modding.ClassChangeBase);
+                Inject_ClassChangeBase(modification as Gnomodia.ClassChangeBase);
             }
-            else if (modification is Faark.Gnomoria.Modding.ClassCreationHook)
+            else if (modification is Gnomodia.ClassCreationHook)
             {
-                Inject_ClassCreationHook(modification as Faark.Gnomoria.Modding.ClassCreationHook);
+                Inject_ClassCreationHook(modification as Gnomodia.ClassCreationHook);
             }
-            else if (modification is Faark.Gnomoria.Modding.IModificationCollection)
+            else if (modification is Gnomodia.IModificationCollection)
             {
-                foreach (var sub_mod in (modification as Faark.Gnomoria.Modding.IModificationCollection))
+                foreach (var sub_mod in (modification as Gnomodia.IModificationCollection))
                 {
                     Inject_Modification(sub_mod);
                 }
@@ -823,7 +823,7 @@ namespace GnomoriaModUI
             var method_that_calls__body = method_that_calls_our_modul.Body.GetILProcessor();
             //CODE FOR: Faark.Gnomoria.Modding.ModRuntimeController.Initiallize();
             method_that_calls__body.Append(method_that_calls__body.Create(OpCodes.Ldarg_0));
-            method_that_calls__body.Append(method_that_calls__body.Create(OpCodes.Call, Module.Import(Method.Of<string[]>(Faark.Gnomoria.Modding.RuntimeModController.Initialize))));
+            method_that_calls__body.Append(method_that_calls__body.Create(OpCodes.Call, Module.Import(Method.Of<string[]>(Gnomodia.RuntimeModController.Initialize))));
             method_that_calls__body.Append(method_that_calls__body.Create(OpCodes.Ret));
             ep.DeclaringType.Methods.Add(method_that_calls_our_modul);
 
@@ -1084,32 +1084,32 @@ namespace GnomoriaModUI
         {
             Inject_Hook(
                 Module.GetType("Game.Map").Methods.Single(m => m.Name == "GenerateMap"),
-                Module.Import(typeof(Faark.Gnomoria.Modding.RuntimeModController).GetMethod("PreCreateHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
+                Module.Import(typeof(Gnomodia.RuntimeModController).GetMethod("PreCreateHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
                 MethodHookType.RunBefore,
                 MethodHookFlags.None);
             Inject_Hook(
                 Module.GetType("Game.Map").Methods.Single(m => m.Name == "GenerateMap"),
-                Module.Import(typeof(Faark.Gnomoria.Modding.RuntimeModController).GetMethod("PostCreateHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
+                Module.Import(typeof(Gnomodia.RuntimeModController).GetMethod("PostCreateHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
                 MethodHookType.RunAfter,
                 MethodHookFlags.None);
             Inject_Hook(
                 Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "LoadGame"),
-                Module.Import(typeof(Faark.Gnomoria.Modding.RuntimeModController).GetMethod("PreLoadHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
+                Module.Import(typeof(Gnomodia.RuntimeModController).GetMethod("PreLoadHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
                 MethodHookType.RunBefore,
                 MethodHookFlags.None);
             Inject_Hook(
                 Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "LoadGame"),
-                Module.Import(typeof(Faark.Gnomoria.Modding.RuntimeModController).GetMethod("PostLoadHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
+                Module.Import(typeof(Gnomodia.RuntimeModController).GetMethod("PostLoadHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
                 MethodHookType.RunAfter,
                 MethodHookFlags.None);
             Inject_Hook(
                  Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "SaveGame"),
-                 Module.Import(typeof(Faark.Gnomoria.Modding.RuntimeModController).GetMethod("PreSaveHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
+                 Module.Import(typeof(Gnomodia.RuntimeModController).GetMethod("PreSaveHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
                  MethodHookType.RunBefore,
                  MethodHookFlags.None);
             Inject_Hook(
                  Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "SaveGame"),
-                 Module.Import(typeof(Faark.Gnomoria.Modding.RuntimeModController).GetMethod("PostSaveHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
+                 Module.Import(typeof(Gnomodia.RuntimeModController).GetMethod("PostSaveHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
                  MethodHookType.RunAfter,
                  MethodHookFlags.None);
 
