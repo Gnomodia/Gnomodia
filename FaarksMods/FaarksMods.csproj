@@ -14,20 +14,20 @@
     <FileAlignment>512</FileAlignment>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\x86\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\Release\Mods\</OutputPath>
+    <OutputPath>bin\x86\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -35,11 +35,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Gnomoria">
-      <HintPath>..\Release\Gnomoria.exe</HintPath>
+      <HintPath>..\Gnomoria\Gnomoria.exe</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="gnomorialib">
-      <HintPath>..\Release\gnomorialib.dll</HintPath>
+      <HintPath>..\Gnomoria\gnomorialib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
@@ -89,9 +89,9 @@
     <Compile Include="Wip\Ideas\ShittyMod.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GnomoriaModController\GnomoriaModController.csproj">
+    <ProjectReference Include="..\Gnomodia\Gnomodia.csproj">
       <Project>{665F54A4-0AF4-471C-9FF0-89D801BCDB9C}</Project>
-      <Name>GnomoriaModController</Name>
+      <Name>Gnomodia</Name>
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>

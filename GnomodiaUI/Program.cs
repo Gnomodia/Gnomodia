@@ -32,11 +32,11 @@ namespace GnomoriaModUI
                             break;
                     }
                 }
-                var cecil = Assembly.GetExecutingAssembly().GetManifestResourceStream( "GnomoriaModUI.Cecil.Mono.Cecil.dll");
+                /*var cecil = Assembly.GetExecutingAssembly().GetManifestResourceStream( "GnomoriaModUI.Cecil.Mono.Cecil.dll");
                 var cecilRocks = Assembly.GetExecutingAssembly().GetManifestResourceStream( "GnomoriaModUI.Cecil.Mono.Cecil.Rocks.dll");
                 AppDomain.CurrentDomain.Load(new System.IO.BinaryReader(cecil).ReadBytes((int)cecil.Length));
                 AppDomain.CurrentDomain.Load(new System.IO.BinaryReader(cecilRocks).ReadBytes((int)cecilRocks.Length));
-                AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
+                AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);*/
                 switch (2)
                 {
                     case 0:

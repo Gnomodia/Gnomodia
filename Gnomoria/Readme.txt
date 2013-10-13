@@ -1,0 +1,1 @@
+Place copies of the version of Gnomoria.exe and gnomorialib.dll you want to work on in this folder.
