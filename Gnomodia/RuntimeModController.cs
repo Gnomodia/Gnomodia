@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Reflection;
@@ -39,7 +40,7 @@ namespace Gnomodia
             {
                 active_mods = new List<IMod>();
                 var loaded_modfiles = new List<string>();
-                var config = ModEnvironmentConfiguration.Load(new System.IO.FileInfo("GnomoriaModConfig.xml"));
+                var config = ModEnvironmentConfiguration.Load(new System.IO.FileInfo(Path.Combine(Reference.GnomodiaDirectory.FullName, "GnomoriaModConfig.xml")));
                 foreach (var modRef in config.ModReferences)
                 {
                     if (!loaded_modfiles.Contains(modRef.AssemblyFile.FullName))
@@ -188,7 +189,7 @@ namespace Gnomodia
             public const string LogfileName = "GnomoriaModded.log";
             public static System.IO.FileInfo GetLogfile()
             {
-                return new System.IO.FileInfo(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), LogfileName));
+                return new System.IO.FileInfo(System.IO.Path.Combine(Reference.GnomodiaDirectory.FullName, LogfileName));
             }
             public static System.IO.FileInfo GetGameLogfile()
             {

@@ -66,12 +66,12 @@ namespace GnomodiaUI
             all_mods_to_process = mods_to_use;
             all_possible_dependencies = dependencies_to_use;
 
-            var source_exe = ModManager.GameDirectory.ContainingFile(ModManager.OriginalExecutable);
+            var source_exe = Reference.GameDirectory.ContainingFile(Reference.OriginalExecutable);
                 //new System.IO.FileInfo(System.IO.Path.Combine(base_directoy.FullName, source_exe_name));
-            var modded_exe = ModManager.GameDirectory.ContainingFile(ModManager.ModdedExecutable);
+            var modded_exe = Reference.GnomodiaDirectory.ContainingFile(Reference.ModdedExecutable);
                 //new System.IO.FileInfo(System.IO.Path.Combine(base_directoy.FullName, modded_exe_name));
-            var source_lib = ModManager.GameDirectory.ContainingFile(ModManager.OriginalLibrary);
-            var modded_lib = ModManager.GameDirectory.ContainingFile(ModManager.ModdedLibrary);
+            var source_lib = Reference.GameDirectory.ContainingFile(Reference.OriginalLibrary);
+            var modded_lib = Reference.GnomodiaDirectory.ContainingFile(Reference.ModdedLibrary);
 
 
 
@@ -83,7 +83,7 @@ namespace GnomodiaUI
 
             // may switch those 2 later to have it outside...
             game_injector.Inject_SetContentRootDirectoryToCurrentDir_InsertAtStartOfMain();
-            game_injector.Inject_CallTo_ModRuntimeController_Initialize_AtStartOfMain(ModManager.GameDirectory.ContainingFile(ModManager.ModController));
+            game_injector.Inject_CallTo_ModRuntimeController_Initialize_AtStartOfMain(Reference.GnomodiaDirectory.ContainingFile(Reference.GnomodiaLibrary));
             //game_injector.Inject_TryCatchWrapperAroundEverthingInMain_WriteCrashLog();
             //game_injector.Inject_CurrentAppDomain_AddResolveEventAtStartOfMain();
             game_injector.Inject_SaveLoadCalls();

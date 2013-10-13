@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("GnomoriaModController")]
+[assembly: AssemblyTitle("Gnomodia")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Privat")]
-[assembly: AssemblyProduct("GnomoriaModController")]
-[assembly: AssemblyCopyright("Copyright © Privat 2013")]
+[assembly: AssemblyCompany("Gnomodia")]
+[assembly: AssemblyProduct("Gnomodia")]
+[assembly: AssemblyCopyright("Copyright © Gnomodia 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -34,3 +34,5 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+
+[assembly: InternalsVisibleTo("GnomodiaUI")]

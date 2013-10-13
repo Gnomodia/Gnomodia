@@ -8,8 +8,8 @@
     <ProjectGuid>{B744C674-84E3-4610-AD3B-968ADDE7D74E}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GnomoriaModUI</RootNamespace>
-    <AssemblyName>GnomoriaModUI</AssemblyName>
+    <RootNamespace>GnomodiaUI</RootNamespace>
+    <AssemblyName>GnomodiaUI</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -96,7 +96,6 @@
     <Compile Include="Interface\ModUI_LocalMods_ModItem.xaml.cs">
       <DependentUpon>ModUI_LocalMods_ModItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ModManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
@@ -113,15 +112,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
+    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\loader1.gif" />

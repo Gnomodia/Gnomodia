@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -10,6 +11,7 @@ using System.Reflection;
 using Gnomodia;
 using Gnomodia.Util;
 using System.Threading.Tasks;
+using GnomodiaUI.Properties;
 
 namespace GnomodiaUI
 {
@@ -139,13 +141,13 @@ namespace GnomodiaUI
         private void DoStuff_EnsureDepenciesAreLoaded()
         {
             //Make sure all assemblys are loaded & can be used by/referenced our mods 
-            foreach (var dep in ModManager.Dependencies)
+            var allLocs = AppDomain.CurrentDomain.GetAssemblies().Select(ass => ass.Location).ToArray();
+            foreach (var dep in Reference.Dependencies)
             {
-                var fullLoc = new System.IO.FileInfo(dep).FullName.ToUpper();
-                var allLocs = AppDomain.CurrentDomain.GetAssemblies().Select(ass => ass.Location.ToUpper()).ToArray();
-                if (AppDomain.CurrentDomain.GetAssemblies().Where(ass => ass.Location.ToUpper() == fullLoc).Count() <= 0)
+                var fullLoc = Path.Combine(Reference.GameDirectory.FullName, dep);
+                if (!allLocs.Any(loc => loc.Equals(fullLoc, StringComparison.OrdinalIgnoreCase)))
                 {
-                    Assembly.LoadFrom(dep);
+                    Assembly.LoadFrom(fullLoc);
                 }
             }
         }
@@ -153,7 +155,7 @@ namespace GnomodiaUI
         {
             try
             {
-                current_config = ModdingEnvironmentConfiguration.LoadOrCreate(ModManager.GameDirectory.ContainingFile(ModManager.config_file_name));
+                current_config = ModdingEnvironmentConfiguration.LoadOrCreate(Reference.GnomodiaDirectory.ContainingFile(Reference.ConfigurationFileName));
             }
             catch (Exception err)
             {
@@ -162,13 +164,14 @@ namespace GnomodiaUI
         }
         private void DoStuff_VerifyLoadedConfig()
         {
-            var dir = ModManager.GameDirectory;
+            var gamedir = Reference.GameDirectory;
+            var gnomodiadir = Reference.GnomodiaDirectory;
             var buildOk = true;
             if ( !current_config.CheckFilesValid(
-                    dir.ContainingFile(ModManager.OriginalExecutable),
-                    dir.ContainingFile(ModManager.ModdedExecutable),
-                    dir.ContainingFile(ModManager.OriginalLibrary),
-                    dir.ContainingFile(ModManager.ModdedLibrary)
+                    gamedir.ContainingFile(Reference.OriginalExecutable),
+                    gnomodiadir.ContainingFile(Reference.ModdedExecutable),
+                    gamedir.ContainingFile(Reference.OriginalLibrary),
+                    gnomodiadir.ContainingFile(Reference.ModdedLibrary)
                     )
                     //gnomoria_directoy, gnomoria_original_executable, gnomoria_modded_executable)
                 )
@@ -197,8 +200,8 @@ namespace GnomodiaUI
             is_build_required = !buildOk;
             if (is_build_required)
             {
-                ModManager.GameDirectory.ContainingFile(ModManager.ModdedExecutable).Delete();
-                ModManager.GameDirectory.ContainingFile(ModManager.ModdedLibrary).Delete();
+                gnomodiadir.ContainingFile(Reference.ModdedExecutable).Delete();
+                gnomodiadir.ContainingFile(Reference.ModdedLibrary).Delete();
                 mod_list_curtain.EnableElementAfter(btn_buildgame);
             }
         }
@@ -253,7 +256,7 @@ namespace GnomodiaUI
                 found_valid_mods_data.Add(new Tuple<IMod, bool, DataRow>(args.Argument, false, null));
                 //throw new NotImplementedException();
             });
-            searcher.RunSync(ModManager.GameDirectory);
+            searcher.RunSync();
             var dupes = found_valid_mods_data.GroupBy(el => el.Item1.GetType().FullName).Where(group => group.Count() > 1);
             if (dupes.Count() > 0)
             {
@@ -266,7 +269,7 @@ namespace GnomodiaUI
                 {
                     string refPath;
                     var path = el.Item1.GetType().Assembly.Location;
-                    if (FileExtensions.GetRelativePath(ModManager.GameDirectory.FullName, path, out refPath))
+                    if (FileExtensions.GetRelativePath(Reference.GnomodiaDirectory.FullName, path, out refPath))
                     {
                         path = refPath;
                     }
@@ -307,7 +310,7 @@ namespace GnomodiaUI
         {
             return Task.Factory.StartNew(() =>
             {
-                ModManager.GameDirectory.ContainingFile(RuntimeModController.Log.LogfileName).Delete();
+                Reference.GnomodiaDirectory.ContainingFile(RuntimeModController.Log.LogfileName).Delete();
                 DoStuff_EnsureDepenciesAreLoaded();
 
                 var newModConfig = new ModdingEnvironmentWriter(
@@ -315,24 +318,18 @@ namespace GnomodiaUI
                     found_valid_mods_data.Where(el => (el.Item3 == null) || !((bool)el.Item3.ItemArray[1])).Select(el => el.Item1).ToArray(),
                     false
                     );
-                newModConfig.SaveEnvironmentConfiguration(ModManager.GameDirectory.ContainingFile(ModManager.config_file_name));
+                newModConfig.SaveEnvironmentConfiguration(Reference.GnomodiaDirectory.ContainingFile(Reference.ConfigurationFileName));
                 is_build_required = false;
             });
         }
         private void DoStuff_LaunchWithMods()
         {
-            var currentApp = new System.IO.FileInfo(Assembly.GetExecutingAssembly().Location);
+            var currentApp = new FileInfo(Assembly.GetExecutingAssembly().Location);
             var launcherProcess = new System.Diagnostics.Process();
             launcherProcess.StartInfo.FileName = currentApp.FullName;
-            launcherProcess.StartInfo.WorkingDirectory = currentApp.Directory.FullName;
+            launcherProcess.StartInfo.WorkingDirectory = Reference.GameDirectory.FullName;
             launcherProcess.StartInfo.Arguments = "-launch";
             launcherProcess.Start();
-            /*
-            var gameProcess = new System.Diagnostics.Process();
-            gameProcess.StartInfo.FileName = ModManager.GameDirectory.ContainingFile(ModManager.ModdedExecutable).FullName;
-            gameProcess.StartInfo.WorkingDirectory = ModManager.GameDirectory.FullName;
-            gameProcess.Start();
-            */
         }
 
 

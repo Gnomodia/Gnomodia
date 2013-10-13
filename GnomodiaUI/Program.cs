@@ -1,8 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Windows.Forms;
+using Gnomodia;
+using Gnomodia.Properties;
+using GnomodiaUI.Properties;
+using GnomoriaModUI;
 
 namespace GnomodiaUI
 {
@@ -14,59 +21,82 @@ namespace GnomodiaUI
         [STAThread]
         static void Main(string[] args)
         {
-            //throw new Exception("Faild :=)");
-            if (System.IO.File.Exists("Gnomoria.exe"))
+#if DEBUG
+            // This helps us re-attach the debugger to the application on a restart
+            if (!Debugger.IsAttached)
             {
-                // Todo: Offer a "just build [now], do not start" mode
-                var buildAndQuit = false;
-                foreach (var arg in args)
+                Thread.Sleep(500);
+                Debugger.Launch();
+            }
+#endif
+
+            // Make sure we know where Gnomoria is
+            if (!VerifyOrConfigureGnomoriaInstallationPath())
+                return;
+
+            // Todo: Offer a "just build [now], do not start" mode
+            var buildAndQuit = false;
+            foreach (var arg in args)
+            {
+                switch (arg.ToUpper())
                 {
-                    switch (arg.ToUpper())
-                    {
-                        case "-LAUNCH":
-                            GameLauncher.Run();
-                            return;
-                        case "-BUILD":
-                            buildAndQuit = true;
-                            //todo: actually implement this
-                            break;
-                    }
-                }
-                /*var cecil = Assembly.GetExecutingAssembly().GetManifestResourceStream( "GnomoriaModUI.Cecil.Mono.Cecil.dll");
-                var cecilRocks = Assembly.GetExecutingAssembly().GetManifestResourceStream( "GnomoriaModUI.Cecil.Mono.Cecil.Rocks.dll");
-                AppDomain.CurrentDomain.Load(new System.IO.BinaryReader(cecil).ReadBytes((int)cecil.Length));
-                AppDomain.CurrentDomain.Load(new System.IO.BinaryReader(cecilRocks).ReadBytes((int)cecilRocks.Length));
-                AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);*/
-                switch (2)
-                {
-                    case 0:
-                        App.Main();
-                        break;
-                    case 1:
-                        //Application.EnableVisualStyles();
-                        //Application.SetCompatibleTextRenderingDefault(false);
-                        //Application.Run(new NewUI());
-                        break;
-                    case 2:
-                        Application.EnableVisualStyles();
-                        Application.SetCompatibleTextRenderingDefault(false);
-                        Application.Run(new Form1());
+                    case "-LAUNCH":
+                        GameLauncher.Run();
+                        return;
+                    case "-BUILD":
+                        buildAndQuit = true;
+                        //todo: actually implement this
                         break;
                 }
             }
-            else
+
+            switch (2)
             {
-                MessageBox.Show("Gnomoria.exe could not be found in the current directory!\n\n"
-                    + "Please copy GnomoriaModUI.exe and GnomoriaModController.dll into\n"
-                    + "the folder you installed gnomoria to. At that location should\n"
-                    + "also be a folder named modsMod dlls go into the sub-folder 'mods',\n"
-                    + "where the dll file of mods go into.", "Error starting GnomoriaModUI", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                case 0:
+                    App.Main();
+                    break;
+                case 1:
+                    //Application.EnableVisualStyles();
+                    //Application.SetCompatibleTextRenderingDefault(false);
+                    //Application.Run(new NewUI());
+                    break;
+                case 2:
+                    Application.EnableVisualStyles();
+                    Application.SetCompatibleTextRenderingDefault(false);
+                    Application.Run(new Form1());
+                    break;
             }
         }
 
-        static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        private static bool VerifyOrConfigureGnomoriaInstallationPath()
         {
-            return AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
+            string installationPath = Settings.Default.GnomoriaInstallationPath;
+            string gnomoriaPath = Path.Combine(installationPath, Reference.OriginalExecutable);
+            if (File.Exists(gnomoriaPath))
+                return true;
+
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            while (!File.Exists(gnomoriaPath))
+            {
+                using (FolderBrowserDialog fbd = new FolderBrowserDialog
+                {
+                    Description = "Gnomoria installation folder (containing Gnomoria.exe)",
+                    ShowNewFolderButton = false
+                })
+                {
+                    if (fbd.ShowDialog() != DialogResult.OK)
+                        return false;
+
+                    installationPath = Settings.Default.GnomoriaInstallationPath = fbd.SelectedPath;
+                    gnomoriaPath = Path.Combine(installationPath, Reference.OriginalExecutable);
+                }
+                Settings.Default.Save();
+            }
+
+            // We must restart after showing the folder browser dialog, as it interferes with XNA otherwise.
+            //GnomodiaModulizer.Instance.RestartGame();
+            return false;
         }
     }
 }

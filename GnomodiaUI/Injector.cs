@@ -89,10 +89,11 @@ namespace GnomodiaUI
                 for (int j = 0; j < method.Body.Instructions.Count; j++)
                 {
                     var inst = method.Body.Instructions[j];
-                    if( inst == newTarget ){
+                    if (inst == newTarget)
+                    {
                         isNewCode = true;
                     }
-                    if( inst == before )
+                    if (inst == before)
                     {
                         isNewCode = false;
                     }
@@ -217,7 +218,7 @@ namespace GnomodiaUI
             if (self.IsGenericInstance)
             {
                 var git = self as GenericInstanceType;
-                var ungeneric_type = Helper_TypeReference_to_Type( self.GetElementType());
+                var ungeneric_type = Helper_TypeReference_to_Type(self.GetElementType());
                 var generic_args = new Type[git.GenericArguments.Count];
                 for (var i = 0; i < git.GenericArguments.Count; i++)
                 {
@@ -252,7 +253,7 @@ namespace GnomodiaUI
             {
                 throw new Exception("Failed to resolve type.");
             }*/
-            
+
             var assembly = self.Scope as AssemblyNameReference;
             if (self.Scope is ModuleDefinition)
             {
@@ -466,7 +467,7 @@ namespace GnomodiaUI
                 OriginalMethod.Body.OptimizeMacros();
             }
         }
-        protected class CustomLoadArgsHookInjector: HookInjector
+        protected class CustomLoadArgsHookInjector : HookInjector
         {
             private List<Tuple<OpCode, byte?>> instructionData;
 
@@ -479,11 +480,11 @@ namespace GnomodiaUI
             {
                 return instructionData
                     .Select(instr => instr.Item2 == null ? ILGen.Create(instr.Item1) : ILGen.Create(instr.Item1, instr.Item2.Value));
-//#warning return instructionData.Select(instr => instr.Item2 == null ? ILGen.Create(instr.Item1) : ILGen.Create(instr.Item1, instr.Item2.Value)).Union(new Instruction[] { Helper.CreateCallInstruction(ILGen, CustomMethodReference, false, GenericArguments) });
-//                throw new NotImplementedException();
+                //#warning return instructionData.Select(instr => instr.Item2 == null ? ILGen.Create(instr.Item1) : ILGen.Create(instr.Item1, instr.Item2.Value)).Union(new Instruction[] { Helper.CreateCallInstruction(ILGen, CustomMethodReference, false, GenericArguments) });
+                //                throw new NotImplementedException();
             }
         }
-        
+
 
         /*protected void Inject_Hook(
             MethodDefinition originalMethod,
@@ -738,7 +739,7 @@ namespace GnomodiaUI
                 if (ins.OpCode == OpCodes.Newobj)
                 {
                     var trgMeth = ins.Operand as MethodReference;
-                    if( Helper_TypeReference_to_Type(trgMeth.DeclaringType) == classCreationHook.ClassToInterceptCreation)
+                    if (Helper_TypeReference_to_Type(trgMeth.DeclaringType) == classCreationHook.ClassToInterceptCreation)
                     //if ((trgMeth.DeclaringType == conType) && trgMeth.Name == ".ctor")
                     {
                         meth.Body.Instructions[i] = ilgen.Create(OpCodes.Call, Module.Import(classCreationHook.CustomCreationMethod));
@@ -1082,34 +1083,35 @@ namespace GnomodiaUI
         }
         public void Inject_SaveLoadCalls()
         {
+            TypeDefinition runtimeModControllerTypeDefinition = Module.Import(typeof(Gnomodia.RuntimeModController)).Resolve();
             Inject_Hook(
                 Module.GetType("Game.Map").Methods.Single(m => m.Name == "GenerateMap"),
-                Module.Import(typeof(Gnomodia.RuntimeModController).GetMethod("PreCreateHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
+                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PreCreateHook")),
                 MethodHookType.RunBefore,
                 MethodHookFlags.None);
             Inject_Hook(
                 Module.GetType("Game.Map").Methods.Single(m => m.Name == "GenerateMap"),
-                Module.Import(typeof(Gnomodia.RuntimeModController).GetMethod("PostCreateHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
+                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PostCreateHook")),
                 MethodHookType.RunAfter,
                 MethodHookFlags.None);
             Inject_Hook(
                 Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "LoadGame"),
-                Module.Import(typeof(Gnomodia.RuntimeModController).GetMethod("PreLoadHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
+                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PreLoadHook")),
                 MethodHookType.RunBefore,
                 MethodHookFlags.None);
             Inject_Hook(
                 Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "LoadGame"),
-                Module.Import(typeof(Gnomodia.RuntimeModController).GetMethod("PostLoadHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
+                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PostLoadHook")),
                 MethodHookType.RunAfter,
                 MethodHookFlags.None);
             Inject_Hook(
                  Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "SaveGame"),
-                 Module.Import(typeof(Gnomodia.RuntimeModController).GetMethod("PreSaveHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
+                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PreSaveHook")),
                  MethodHookType.RunBefore,
                  MethodHookFlags.None);
             Inject_Hook(
                  Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "SaveGame"),
-                 Module.Import(typeof(Gnomodia.RuntimeModController).GetMethod("PostSaveHook", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)),
+                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PostSaveHook")),
                  MethodHookType.RunAfter,
                  MethodHookFlags.None);
 

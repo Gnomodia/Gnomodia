@@ -72,7 +72,7 @@ namespace GnomodiaUI
                 //to log...
             }
         }
-        public void RunSync(System.IO.DirectoryInfo gnomoria_base)
+        public void RunSync()
         {
             try
             {
@@ -81,8 +81,7 @@ namespace GnomodiaUI
                 //processModType(typeof(Faark.Gnomoria.Modding.DemoMods.Game_CreateBackupSavegame));
 
 
-                var mod_dir = gnomoria_base.GetDirectories().Single(sub => sub.Name.ToUpper() == "MODS");
-                var mod_files = mod_dir.GetFiles("*.dll");
+                var mod_files = Reference.ModDirectory.GetFiles("*.dll");
                 var mod_assemblies = new List<Assembly>();
                 foreach (var mod_file in mod_files)
                 {
