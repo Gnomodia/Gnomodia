@@ -123,14 +123,14 @@ namespace alexschrod.MiningImprovements
 
             Vector3?[] surrounding =
             {
-                x - 1 >= 0 ? new Vector3(x - 1, y, z) : (Vector3?) null,
-                y - 1 >= 0 ? new Vector3(x, y - 1, z) : (Vector3?) null,
-                x < map.MapHeight - 1 ? new Vector3(x + 1, y, z) : (Vector3?) null,
-                y < map.MapWidth - 1 ? new Vector3(x, y + 1, z) : (Vector3?) null,
-                x - 1 >= 0 && y - 1 >= 0 ? new Vector3(x - 1, y - 1, z) : (Vector3?) null,
-                x - 1 >= 0 && y < map.MapWidth - 1 ? new Vector3(x - 1, y + 1, z) : (Vector3?) null,
-                x < map.MapHeight - 1 && y - 1 >= 0 ? new Vector3(x + 1, y - 1, z) : (Vector3?) null,
-                x < map.MapHeight - 1 && y < map.MapWidth - 1 ? new Vector3(x + 1, y + 1, z) : (Vector3?) null
+                x - 1 > 0 ? new Vector3(x - 1, y, z) : (Vector3?) null,
+                y - 1 > 0 ? new Vector3(x, y - 1, z) : (Vector3?) null,
+                x < map.MapHeight - 2 ? new Vector3(x + 1, y, z) : (Vector3?) null,
+                y < map.MapWidth - 2 ? new Vector3(x, y + 1, z) : (Vector3?) null,
+                x - 1 > 0 && y - 1 > 0 ? new Vector3(x - 1, y - 1, z) : (Vector3?) null,
+                x - 1 > 0 && y < map.MapWidth - 2 ? new Vector3(x - 1, y + 1, z) : (Vector3?) null,
+                x < map.MapHeight - 2 && y - 1 > 0 ? new Vector3(x + 1, y - 1, z) : (Vector3?) null,
+                x < map.MapHeight - 2 && y < map.MapWidth - 2 ? new Vector3(x + 1, y + 1, z) : (Vector3?) null
             };
 
             return surrounding.Where(p => p.HasValue).Select(p => p.Value);
