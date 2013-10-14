@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{77B43B87-9ABB-4A82-A12E-6CF4CE1FFE2A}</ProjectGuid>
+    <ProjectGuid>{D7371EC1-10A3-4063-92D1-355A9D0EA0A8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>alexschrod.FarmImprovement</RootNamespace>
-    <AssemblyName>FarmImprovement</AssemblyName>
+    <RootNamespace>alexschrod.MiningImprovements</RootNamespace>
+    <AssemblyName>MiningImprovements</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -65,7 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ModInfo.cs" />
-    <Compile Include="FarmImprovement.cs" />
+    <Compile Include="MiningImprovements.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

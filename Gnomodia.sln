@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FarmImprovement", "FarmImpr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "alexschrod's Mods", "alexschrod's Mods", "{C5C0C4A7-E0E0-4B75-8E0A-7B520E223E8B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiningImprovements", "MiningImprovements\MiningImprovements.csproj", "{D7371EC1-10A3-4063-92D1-355A9D0EA0A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -33,11 +35,16 @@ Global
 		{77B43B87-9ABB-4A82-A12E-6CF4CE1FFE2A}.Debug|x86.Build.0 = Debug|x86
 		{77B43B87-9ABB-4A82-A12E-6CF4CE1FFE2A}.Release|x86.ActiveCfg = Release|x86
 		{77B43B87-9ABB-4A82-A12E-6CF4CE1FFE2A}.Release|x86.Build.0 = Release|x86
+		{D7371EC1-10A3-4063-92D1-355A9D0EA0A8}.Debug|x86.ActiveCfg = Debug|x86
+		{D7371EC1-10A3-4063-92D1-355A9D0EA0A8}.Debug|x86.Build.0 = Debug|x86
+		{D7371EC1-10A3-4063-92D1-355A9D0EA0A8}.Release|x86.ActiveCfg = Release|x86
+		{D7371EC1-10A3-4063-92D1-355A9D0EA0A8}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{77B43B87-9ABB-4A82-A12E-6CF4CE1FFE2A} = {C5C0C4A7-E0E0-4B75-8E0A-7B520E223E8B}
+		{D7371EC1-10A3-4063-92D1-355A9D0EA0A8} = {C5C0C4A7-E0E0-4B75-8E0A-7B520E223E8B}
 	EndGlobalSection
 EndGlobal

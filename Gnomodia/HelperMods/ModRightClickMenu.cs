@@ -121,6 +121,7 @@ namespace Gnomodia.HelperMods
         {
             get
             {
+
                 yield return new MethodHook(
                     typeof(Game.GUI.RightClickMenu).GetConstructor(new Type[] { }),
                     Method.Of<Game.GUI.RightClickMenu>(On_RightClickMenu_Created)

@@ -17,8 +17,30 @@ namespace GnomodiaUI
 {
     public partial class Form1 : Form
     {
+        /* http://blogs.msdn.com/b/suzcook/archive/2003/05/29/57143.aspx
+         * Because we use LoadFrom to load certain assemblies, other assemblies loaded through
+         * Load (such as Gnomodia) won't automatically use those, e.g. Gnomoria.exe.
+         * Thus, we'll provide them ourselves with an AssemblyResolve, as per the article.
+         */
+        private static Assembly AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            var asses = AppDomain.CurrentDomain.GetAssemblies();
+            var trgName = new AssemblyName(args.Name);
+            foreach (var ass in asses)
+            {
+                var aN = new AssemblyName(ass.FullName);
+                if (aN.Name == trgName.Name)
+                {
+                    return ass;
+                }
+            }
+            return null;
+        }
+
         public Form1()
         {
+            AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
+
             InitializeComponent();
         }
 

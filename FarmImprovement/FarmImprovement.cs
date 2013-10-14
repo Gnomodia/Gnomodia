@@ -1,14 +1,15 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using Game;
 using GameLibrary;
 using Gnomodia;
 using Microsoft.Xna.Framework;
 
-namespace FarmImprovement
+namespace alexschrod.FarmImprovement
 {
     public partial class FarmImprovement : Mod
     {
-        public override System.Collections.Generic.IEnumerable<IModification> Modifications
+        public override IEnumerable<IModification> Modifications
         {
             get
             {

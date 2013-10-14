@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FarmImprovement
+namespace alexschrod.FarmImprovement
 {
     public partial class FarmImprovement
     {
