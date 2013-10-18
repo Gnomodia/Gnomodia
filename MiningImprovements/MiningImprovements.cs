@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Game;
 using Game.GUI;
+using GameLibrary;
 using Gnomodia;
 using Gnomodia.HelperMods;
 using Microsoft.Xna.Framework;
@@ -12,7 +13,10 @@ namespace alexschrod.MiningImprovements
 {
     public class QuickMineJob : IModJob
     {
-        public JobType ImpersonateJobType { get; private set; }
+        public JobType ImpersonateJobType
+        {
+            get { return JobType.Mine; }
+        }
 
         public bool CreateJobs(Rectangle jobArea, int level, Vector3 selectionStartPosition)
         {
@@ -71,36 +75,122 @@ namespace alexschrod.MiningImprovements
             }
             return true;
         }
+    }
 
-        public QuickMineJob()
+    public class SafeTorchesJob : IModJob
+    {
+        public JobType ImpersonateJobType
         {
-            ImpersonateJobType = JobType.Mine;
+            get { return JobType.Deconstruct; }
+        }
+
+        public bool CreateJobs(Rectangle jobArea, int level, Vector3 selectionStartPosition)
+        {
+            Map map = GnomanEmpire.Instance.Map;
+            MapCell mapCell = map.GetCell(selectionStartPosition);
+            if (!(mapCell.EmbeddedWall is Torch))
+                return false;
+
+            int mapWidth = map.MapWidth;
+            int mapHeight = map.MapHeight;
+
+            int startX = (int) selectionStartPosition.X;
+            int startY = (int)selectionStartPosition.Y;
+
+            for (int x = startX; x < mapHeight; x += MiningImprovements.SafeTorchDistance)
+            {
+                for (int y = startY; y < mapWidth; y += MiningImprovements.SafeTorchDistance)
+                {
+                    RemoveTorch(selectionStartPosition, map, startY, startX, x, y);
+                }
+                for (int y = startY; y > 0; y -= MiningImprovements.SafeTorchDistance)
+                {
+                    RemoveTorch(selectionStartPosition, map, startY, startX, x, y);
+                }
+            }
+
+            for (int x = startX; x > 0; x -= MiningImprovements.SafeTorchDistance)
+            {
+                for (int y = startY; y < mapWidth; y += MiningImprovements.SafeTorchDistance)
+                {
+                    RemoveTorch(selectionStartPosition, map, startY, startX, x, y);
+                }
+                for (int y = startY; y > 0; y -= MiningImprovements.SafeTorchDistance)
+                {
+                    RemoveTorch(selectionStartPosition, map, startY, startX, x, y);
+                }
+            }
+
+            return true;
+        }
+
+        private static void RemoveTorch(Vector3 selectionStartPosition, Map map, int startY, int startX, int x, int y)
+        {
+            int deltaX = Math.Abs(x - startX);
+            int deltaY = Math.Abs(y - startY);
+
+            if (deltaX == 0 && deltaY == 0)
+            {
+                return;
+            }
+
+            int stepsX = deltaX/(MiningImprovements.SafeTorchDistance);
+            int stepsY = deltaY/(MiningImprovements.SafeTorchDistance);
+
+            bool evenX = stepsX%2 == 0;
+            bool evenY = stepsY%2 == 0;
+
+            if (evenX != evenY)
+            {
+                Vector3 torchRemovalPosition = new Vector3(x, y, selectionStartPosition.Z);
+                MapCell mapCell = map.GetCell(torchRemovalPosition);
+                if (!(mapCell.EmbeddedWall is Torch))
+                {
+                    return;
+                }
+
+                // TODO: Ensure all four cardinal directions have complete visibility to another block that is SafeTorchDistance away
+
+                GnomanEmpire.Instance.Fortress.JobBoard.AddJob(new DeconstructJob(torchRemovalPosition));
+            }
         }
     }
 
     public partial class MiningImprovements : Mod
     {
-        private static JobType s_StripMineJobType;
+        public const int SafeTorchDistance = 11;
+
+        private static JobType s_QuickMineJobType;
+        private static JobType s_SafeTorchesJobType;
 
         public override void Initialize_PreGeneration()
         {
             ModRightClickMenu.AddItem("Quick mine", QuickMine);
             ModRightClickMenu.AddItem("Strip mine entire level", StripMineLevel);
+            ModRightClickMenu.AddItem("Keep only required torches", KeepRequiredTorches);
             ModCustomJobs.AddJob<QuickMineJob>("QuickMine");
+            ModCustomJobs.AddJob<SafeTorchesJob>("SafeTorches");
         }
 
         public override void Initialize_PreGame()
         {
-            s_StripMineJobType = ModCustomJobs.GetJobType("QuickMine");
+            s_QuickMineJobType = ModCustomJobs.GetJobType("QuickMine");
+            s_SafeTorchesJobType = ModCustomJobs.GetJobType("SafeTorches");
         }
 
         public static void QuickMine()
         {
             TileSelectionManager tileSelectionManager = GnomanEmpire.Instance.Region.TileSelectionManager;
-            tileSelectionManager.SetMouseAction(s_StripMineJobType, null, true, false, true, true);
+            tileSelectionManager.SetMouseAction(s_QuickMineJobType, null, true, false, true, true);
         }
 
-        public static bool CreateSafeMineJob(Map map, Vector3 position)
+        public static void KeepRequiredTorches()
+        {
+            TileSelectionManager tileSelectionManager = GnomanEmpire.Instance.Region.TileSelectionManager;
+            tileSelectionManager.SetMouseAction(s_SafeTorchesJobType, null, false, false, false, false);
+        }
+
+        public static bool CreateSafeMineJob(Map map, Vector3 position, Character character = null)
         {
             // Is this a valid mining location?
             MapCell mapCell = map.GetCell(position);
@@ -108,7 +198,7 @@ namespace alexschrod.MiningImprovements
                 return false;
 
             // Make sure surrounding cells are safe
-            if (!IsSafeMiningLocation(map, position))
+            if (!IsSafeMiningLocation(map, position, character))
                 return false;
 
             GnomanEmpire.Instance.Fortress.JobBoard.AddJob(new MineJob(position));
@@ -144,7 +234,7 @@ namespace alexschrod.MiningImprovements
         private static bool IsSafeMiningLocation(Map map, Vector3 position, Character character = null)
         {
             return GetSurroundingPositions(map, position)
-                .All(surroundingPosition => 
+                .All(surroundingPosition =>
                     map.GetCell(surroundingPosition).HasNaturalWall()
                     || (character != null && character.CanReach(surroundingPosition, false)));
         }
@@ -179,20 +269,109 @@ namespace alexschrod.MiningImprovements
             {
                 yield return new MethodHook(typeof(MineJob).GetMethod("Complete", BindingFlags.Instance | BindingFlags.Public),
                     Method.Of<MineJob, Character>(MineExtraOre));
+                yield return new MethodHook(typeof(BuildConstructionJob).GetMethod("Complete", BindingFlags.Instance | BindingFlags.Public),
+                    Method.Of<BuildConstructionJob, Character>(AutomaticallyLitStripMining));
+            }
+        }
+
+        public static void AutomaticallyLitStripMining(BuildConstructionJob buildConstructionJob, Character character)
+        {
+            Vector3 jobPosition = buildConstructionJob.Position;
+            int depth = (int)(GnomanEmpire.Instance.Map.SurfaceLevel - jobPosition.Z);
+            if (depth > -8)
+                return;
+
+            BuildConstructionJobData jobData = (BuildConstructionJobData)buildConstructionJob.Data;
+            if (jobData.ConstructionID != ConstructionID.Torch)
+                return;
+
+            Map map = GnomanEmpire.Instance.Map;
+
+            int mapWidth = map.MapWidth;
+            int mapHeight = map.MapHeight;
+
+            for (int x = (int)(jobPosition.X - SafeTorchDistance); x <= jobPosition.X + SafeTorchDistance; x++)
+            {
+                if (x < 1) x = 1;
+                if (x > mapHeight - 2) break;
+                CreateSafeMineJob(map, new Vector3(x, jobPosition.Y, jobPosition.Z), character);
+            }
+
+            for (int y = (int)(jobPosition.Y - SafeTorchDistance); y <= jobPosition.Y + SafeTorchDistance; y++)
+            {
+                if (y < 1) y = 1;
+                if (y > mapWidth - 2) break;
+                CreateSafeMineJob(map, new Vector3(jobPosition.X, y, jobPosition.Z), character);
             }
         }
 
         public static void MineExtraOre(MineJob mineJob, Character character)
         {
-            Map map = GnomanEmpire.Instance.Map;
             Vector3 jobPosition = mineJob.Position;
+            float z = jobPosition.Z;
+            int depth = (int)(GnomanEmpire.Instance.Map.SurfaceLevel - z);
+            Map map = GnomanEmpire.Instance.Map;
 
-            foreach (var surroundingPosition in GetSurroundingPositions(map, jobPosition)
-                .Where(surroundingPosition => IsSafeMiningLocation(map, surroundingPosition, character)
-                    && map.GetCell(surroundingPosition).HasEmbeddedWall()))
+            if (depth < -7)
             {
-                GnomanEmpire.Instance.Fortress.JobBoard.AddJob(new MineJob(surroundingPosition));
+                int mapWidth = map.MapWidth;
+                int mapHeight = map.MapHeight;
+
+                // Check if a torch exists a SafeTorchDistance away
+                float y = jobPosition.Y;
+                float x = jobPosition.X;
+                if (x - SafeTorchDistance >= 1)
+                {
+                    Vector3 torchPosition = new Vector3(x - SafeTorchDistance, y, z);
+                    if (CheckBuildTorch(jobPosition, torchPosition, map))
+                        return;
+                }
+                if (x + SafeTorchDistance <= mapHeight - 2)
+                {
+                    Vector3 torchPosition = new Vector3(x + SafeTorchDistance, y, z);
+                    if (CheckBuildTorch(jobPosition, torchPosition, map))
+                        return;
+                }
+                if (y - SafeTorchDistance >= 1)
+                {
+                    Vector3 torchPosition = new Vector3(x, y - SafeTorchDistance, z);
+                    if (CheckBuildTorch(jobPosition, torchPosition, map))
+                        return;
+                }
+                if (y + SafeTorchDistance <= mapWidth - 2)
+                {
+                    Vector3 torchPosition = new Vector3(x, y + SafeTorchDistance, z);
+                    if (CheckBuildTorch(jobPosition, torchPosition, map))
+                        return;
+                }
             }
+            else
+            {
+                foreach (var surroundingPosition in GetSurroundingPositions(map, jobPosition)
+                    .Where(surroundingPosition =>
+                    {
+                        MapCell mapCell = map.GetCell(surroundingPosition);
+                        return IsSafeMiningLocation(map, surroundingPosition, character)
+                            && mapCell.HasNaturalWall()
+                            && mapCell.HasEmbeddedWall();
+                    }))
+                {
+                    GnomanEmpire.Instance.Fortress.JobBoard.AddJob(new MineJob(surroundingPosition));
+                }
+            }
+        }
+
+        private static bool CheckBuildTorch(Vector3 jobPosition, Vector3 torchPosition, Map map)
+        {
+            MapCell cell = map.GetCell(torchPosition);
+            if (cell.EmbeddedWall is Torch)
+            {
+                BuildConstructionJobData data = new BuildConstructionJobData(ConstructionID.Torch);
+                BuildConstructionJob buildConstructionJob = new BuildConstructionJob(jobPosition, data);
+                buildConstructionJob.RequiredComponents.Add(new JobComponent(ItemID.Torch, (int)Material.Count));
+                GnomanEmpire.Instance.Fortress.JobBoard.AddJob(buildConstructionJob);
+            }
+            return false;
         }
     }
 }
