@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using Gnomodia;
+using Gnomodia.HelperMods;
 using Gnomodia.Util;
 
 namespace GnomodiaUI
@@ -66,6 +67,12 @@ namespace GnomodiaUI
             all_mods_to_process = mods_to_use;
             all_possible_dependencies = dependencies_to_use;
 
+            // Force-inject ModDialog
+            if (all_mods_to_process.All(m => m.GetType() != typeof(ModDialog)) && all_possible_dependencies.All(m => m.GetType() != typeof(ModDialog)))
+            {
+                all_mods_to_process = all_mods_to_process.Union(new ModDialog()).ToArray();
+            }
+
             var source_exe = Reference.GameDirectory.ContainingFile(Reference.OriginalExecutable);
                 //new System.IO.FileInfo(System.IO.Path.Combine(base_directoy.FullName, source_exe_name));
             var modded_exe = Reference.GnomodiaDirectory.ContainingFile(Reference.ModdedExecutable);
@@ -95,7 +102,7 @@ namespace GnomodiaUI
             }
 
 
-            foreach (var mod in mods_to_use)
+            foreach (var mod in all_mods_to_process)
             {
                 ProcessMod(mod);
             }

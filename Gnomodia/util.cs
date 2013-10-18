@@ -332,6 +332,26 @@ namespace Gnomodia.Util
         }
     }
 
+    public static class GnomoriaExtensions
+    {
+        public static bool FindControlRecursive<T>(this Game.GUI.Controls.Control containingControl, Predicate<T> controlPredicate, out T foundControl) where T : Game.GUI.Controls.Control
+        {
+            if (containingControl is T && controlPredicate((T)containingControl))
+            {
+                foundControl = (T) containingControl;
+                return true;
+            }
+
+            foreach (Game.GUI.Controls.Control control in containingControl.ControlsList)
+            {
+                if (control.FindControlRecursive(controlPredicate, out foundControl))
+                    return true;
+            }
+
+            foundControl = null;
+            return false;
+        }
+    }
 
     namespace Neoforce
     {

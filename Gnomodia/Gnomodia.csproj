@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HelperMods\ModDialog.cs" />
     <Compile Include="HelperMods\ModCustomJobs.cs" />
     <Compile Include="ISettings.cs" />
     <Compile Include="Properties\Settings.Designer.cs">

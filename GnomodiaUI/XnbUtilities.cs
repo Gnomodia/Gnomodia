@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -13,7 +12,7 @@ namespace GnomodiaUI
     {
         private sealed class ServiceProvider : IDisposable, IServiceProvider
         {
-            private sealed class FauxGame : Game { }
+            private sealed class FauxGame : Microsoft.Xna.Framework.Game { }
 
             private GraphicsDeviceManager _graphicsDeviceManager;
             private FauxGame _fauxGame;
@@ -51,8 +50,7 @@ namespace GnomodiaUI
         private ContentManager _contentManager;
         public XnbUtilities(string rootDirectory)
         {
-            _contentManager = new ContentManager(new ServiceProvider());
-            _contentManager.RootDirectory = rootDirectory;
+            _contentManager = new ContentManager(new ServiceProvider()) { RootDirectory = rootDirectory };
         }
 
         public T Load<T>(string xnbPath)

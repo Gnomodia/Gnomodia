@@ -41,6 +41,14 @@
     <ApplicationIcon>Images\GE.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Gnomoria">
+      <HintPath>..\Gnomoria\Gnomoria.exe</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="gnomorialib">
+      <HintPath>..\Gnomoria\gnomorialib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
