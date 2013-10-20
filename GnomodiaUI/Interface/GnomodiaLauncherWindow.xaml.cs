@@ -11,11 +11,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using GnomodiaUI.Controls;
 
 namespace GnomodiaUI.Interface
 {
     /// <summary>
-    /// Interaction logic for Gnomodia.xaml
+    /// Interaction logic for GnomodiaLauncherWindow.xaml
     /// </summary>
     public partial class GnomodiaLauncherWindow
     {

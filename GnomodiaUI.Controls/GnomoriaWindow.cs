@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -7,8 +8,10 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using ICSharpCode.SharpZipLib.Zip;
+using Path = System.IO.Path;
 
-namespace GnomodiaUI.Interface
+namespace GnomodiaUI.Controls
 {
     public class GnomoriaWindow : Window
     {
@@ -20,6 +23,12 @@ namespace GnomodiaUI.Interface
         }
 
         #endregion
+
+        static GnomoriaWindow()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(GnomoriaWindow),
+                new FrameworkPropertyMetadata(typeof(GnomoriaWindow)));
+        }
 
         public GnomoriaWindow()
         {
@@ -34,6 +43,19 @@ namespace GnomodiaUI.Interface
 
         public override void OnApplyTemplate()
         {
+            if (!DesignerProperties.GetIsInDesignMode(this))
+                using (ZipFile skinZip = new ZipFile(Path.Combine(GnomodiaControls.GnomoriaPath, @"Content\UI\Default.skin")))
+                {
+                    using (XnbUtilities xnbUtilities = new XnbUtilities(skinZip))
+                    {
+                        Resources["WindowCaption"] = xnbUtilities.LoadTextureAsImage("Images/Window.Caption");
+                        Resources["WindowCloseButton"] = xnbUtilities.LoadTextureAsImage("Images/Window.CloseButton");
+                        Resources["WindowFrameBottom"] = xnbUtilities.LoadTextureAsImage("Images/Window.FrameBottom");
+                        Resources["WindowFrameLeft"] = xnbUtilities.LoadTextureAsImage("Images/Window.FrameLeft");
+                        Resources["WindowFrameRight"] = xnbUtilities.LoadTextureAsImage("Images/Window.FrameRight");
+                    }
+                }
+
             Button closeButton = GetTemplateChild("closeButton") as Button;
             if (closeButton != null)
                 closeButton.Click += CloseClick;
@@ -53,23 +75,23 @@ namespace GnomodiaUI.Interface
                 moveRectangle.PreviewMouseDown += moveRectangle_PreviewMouseDown;
 
             Image topLeftWindowDecoration = GetTemplateChild("topLeftWindowDecoration") as Image;
-            topLeftWindowDecoration.Source = (ImageSource)Application.Current.Resources["WindowCaption"];
+            topLeftWindowDecoration.Source = (ImageSource)Resources["WindowCaption"];
 
             Image topMiddleWindowDecoration = GetTemplateChild("topMiddleWindowDecoration") as Image;
             topMiddleWindowDecoration.Source = topLeftWindowDecoration.Source;
 
             closeButton.ApplyTemplate();
             Image closeButtonDecoration = closeButton.Template.FindName("closeButtonDecoration", closeButton) as Image;
-            closeButtonDecoration.Source = (ImageSource)Application.Current.Resources["WindowCloseButton"];
+            closeButtonDecoration.Source = (ImageSource)Resources["WindowCloseButton"];
 
             Image leftMiddleWindowDecoration = GetTemplateChild("leftMiddleWindowDecoration") as Image;
-            leftMiddleWindowDecoration.Source = (ImageSource)Application.Current.Resources["WindowFrameLeft"];
+            leftMiddleWindowDecoration.Source = (ImageSource)Resources["WindowFrameLeft"];
 
             Image rightMiddleWindowDecoration = GetTemplateChild("rightMiddleWindowDecoration") as Image;
             rightMiddleWindowDecoration.Source = leftMiddleWindowDecoration.Source;
 
             Image bottomLeftWindowDecoration = GetTemplateChild("bottomLeftWindowDecoration") as Image;
-            bottomLeftWindowDecoration.Source = (ImageSource)Application.Current.Resources["WindowFrameBottom"];
+            bottomLeftWindowDecoration.Source = (ImageSource)Resources["WindowFrameBottom"];
 
             Image bottomMiddleWindowDecoration = GetTemplateChild("bottomMiddleWindowDecoration") as Image;
             bottomMiddleWindowDecoration.Source = bottomLeftWindowDecoration.Source;
@@ -124,7 +146,7 @@ namespace GnomodiaUI.Interface
                     break;
             }
         }
-        
+
         private HwndSource _hwndSource;
 
         protected override void OnInitialized(EventArgs e)
@@ -136,7 +158,7 @@ namespace GnomodiaUI.Interface
         private void OnSourceInitialized(object sender, EventArgs e)
         {
             _hwndSource = (HwndSource)PresentationSource.FromVisual(this);
-        } 
+        }
 
         private void ResizeWindow(ResizeDirection direction)
         {

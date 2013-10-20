@@ -2,17 +2,18 @@
 using System.IO;
 using System.Reflection;
 using System.Windows.Media.Imaging;
+using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GnomodiaUI
+namespace GnomodiaUI.Controls
 {
     internal sealed class XnbUtilities : IDisposable
     {
         private sealed class ServiceProvider : IDisposable, IServiceProvider
         {
-            private sealed class FauxGame : Microsoft.Xna.Framework.Game { }
+            private sealed class FauxGame : Game { }
 
             private GraphicsDeviceManager _graphicsDeviceManager;
             private FauxGame _fauxGame;
@@ -53,13 +54,39 @@ namespace GnomodiaUI
             _contentManager = new ContentManager(new ServiceProvider()) { RootDirectory = rootDirectory };
         }
 
+        private ZipFile _zipFile;
+        public XnbUtilities(ZipFile zipFile)
+        {
+            _zipFile = zipFile;
+            _contentManager = new ContentManager(new ServiceProvider()) { RootDirectory = Path.GetTempPath() };
+        }
+
         public T Load<T>(string xnbPath)
         {
+            if (_zipFile != null)
+            {
+                ZipEntry entry = _zipFile.GetEntry(xnbPath + ".xnb");
+                Stream s = _zipFile.GetInputStream(entry);
+                xnbPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".xnb");
+                using (Stream tmpStream = File.OpenWrite(xnbPath))
+                {
+                    s.CopyTo(tmpStream);
+                }
+            }
+
             FileInfo xnbFile = new FileInfo(xnbPath);
             if (!xnbFile.Exists)
                 return default(T);
 
-            return _contentManager.Load<T>(Path.GetFileNameWithoutExtension(xnbFile.Name));
+            try
+            {
+                return _contentManager.Load<T>(Path.GetFileNameWithoutExtension(xnbFile.Name));
+            }
+            finally
+            {
+                if (_zipFile != null)
+                    File.Delete(xnbPath);
+            }
         }
 
         private static readonly FieldInfo SpriteFontTextureValueField = typeof(SpriteFont).GetField("textureValue", BindingFlags.Instance | BindingFlags.NonPublic);

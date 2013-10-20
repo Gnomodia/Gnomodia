@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "alexschrod's Mods", "alexsc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiningImprovements", "MiningImprovements\MiningImprovements.csproj", "{D7371EC1-10A3-4063-92D1-355A9D0EA0A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GnomodiaUI.Controls", "GnomodiaUI.Controls\GnomodiaUI.Controls.csproj", "{794B9653-EC66-439D-AC77-478C740A8C2E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -39,6 +41,10 @@ Global
 		{D7371EC1-10A3-4063-92D1-355A9D0EA0A8}.Debug|x86.Build.0 = Debug|x86
 		{D7371EC1-10A3-4063-92D1-355A9D0EA0A8}.Release|x86.ActiveCfg = Release|x86
 		{D7371EC1-10A3-4063-92D1-355A9D0EA0A8}.Release|x86.Build.0 = Release|x86
+		{794B9653-EC66-439D-AC77-478C740A8C2E}.Debug|x86.ActiveCfg = Debug|x86
+		{794B9653-EC66-439D-AC77-478C740A8C2E}.Debug|x86.Build.0 = Debug|x86
+		{794B9653-EC66-439D-AC77-478C740A8C2E}.Release|x86.ActiveCfg = Release|x86
+		{794B9653-EC66-439D-AC77-478C740A8C2E}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
