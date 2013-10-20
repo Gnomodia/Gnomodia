@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Game;
 using Game.GUI;
-using Gnomodia.Util.Serialization;
+using Gnomodia.Utility.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -60,12 +60,12 @@ namespace Gnomodia.HelperMods
         {
             get
             {
-                return SerializableDataBag.ToJSON(_modJobTypes.Select(kvp => Tuple.Create(kvp.Key, new JobTypeRef(kvp.Value))));
+                return SerializableDataBag.ToJson(_modJobTypes.Select(kvp => Tuple.Create(kvp.Key, new JobTypeRef(kvp.Value))));
             }
             set
             {
                 _modJobTypes = SerializableDataBag
-                    .FromJSON<JobTypeRef>(value)
+                    .FromJson<JobTypeRef>(value)
                     .ToDictionary<Type>(
                         tref => tref.GetDeclaringType());
             }

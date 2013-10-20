@@ -5,8 +5,8 @@ using System.Text;
 using System.Dynamic;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Gnomodia.Util;
-using Gnomodia.Util.Serialization;
+using Gnomodia.Utility;
+using Gnomodia.Utility.Serialization;
 
 using Game;
 using GameLibrary;
@@ -86,12 +86,12 @@ namespace Gnomodia.HelperMods
             {
                 //return SerializableDataBag.ToJSON(ModMenuItems.Select(kvp => Tuple.Create(kvp.Key, kvp.Value.Method)));
                 //return SerializableDataBag.ToJSON(ModMenuItems);
-                return SerializableDataBag.ToJSON(ModMenuItems.Select(kvp => Tuple.Create(kvp.Key, new MethodRef(kvp.Value.Method))));
+                return SerializableDataBag.ToJson(ModMenuItems.Select(kvp => Tuple.Create(kvp.Key, new MethodRef(kvp.Value.Method))));
             }
             set
             {
                 ModMenuItems = SerializableDataBag
-                    .FromJSON<MethodRef>(value)
+                    .FromJson<MethodRef>(value)
                     .ToDictionary<ModMenuItemClickedCallback>(
                         mref => (ModMenuItemClickedCallback)Delegate.CreateDelegate(typeof(ModMenuItemClickedCallback), mref.GetMethod())
                         );

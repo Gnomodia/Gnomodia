@@ -9,7 +9,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Reflection;
 using Gnomodia;
-using Gnomodia.Util;
+using Gnomodia.Utility;
 using System.Threading.Tasks;
 using GnomodiaUI.Properties;
 
@@ -177,7 +177,7 @@ namespace GnomodiaUI
         {
             try
             {
-                current_config = ModdingEnvironmentConfiguration.LoadOrCreate(Reference.GnomodiaDirectory.ContainingFile(Reference.ConfigurationFileName));
+                current_config = ModdingEnvironmentConfiguration.LoadOrCreate(Reference.GnomodiaDirectory.GetFile(Reference.ConfigurationFileName));
             }
             catch (Exception err)
             {
@@ -190,10 +190,10 @@ namespace GnomodiaUI
             var gnomodiadir = Reference.GnomodiaDirectory;
             var buildOk = true;
             if ( !current_config.CheckFilesValid(
-                    gamedir.ContainingFile(Reference.OriginalExecutable),
-                    gnomodiadir.ContainingFile(Reference.ModdedExecutable),
-                    gamedir.ContainingFile(Reference.OriginalLibrary),
-                    gnomodiadir.ContainingFile(Reference.ModdedLibrary)
+                    gamedir.GetFile(Reference.OriginalExecutable),
+                    gnomodiadir.GetFile(Reference.ModdedExecutable),
+                    gamedir.GetFile(Reference.OriginalLibrary),
+                    gnomodiadir.GetFile(Reference.ModdedLibrary)
                     )
                     //gnomoria_directoy, gnomoria_original_executable, gnomoria_modded_executable)
                 )
@@ -208,7 +208,7 @@ namespace GnomodiaUI
                 {
                     if (!checked_files.Contains(mod.AssemblyFile.FullName))
                     {
-                        var hash = mod.AssemblyFile.GenerateMD5Hash();
+                        var hash = mod.AssemblyFile.GenerateMd5Hash();
                         if (hash != mod.Hash)
                         {
                             buildOk = false;
@@ -222,8 +222,8 @@ namespace GnomodiaUI
             is_build_required = !buildOk;
             if (is_build_required)
             {
-                gnomodiadir.ContainingFile(Reference.ModdedExecutable).Delete();
-                gnomodiadir.ContainingFile(Reference.ModdedLibrary).Delete();
+                gnomodiadir.GetFile(Reference.ModdedExecutable).Delete();
+                gnomodiadir.GetFile(Reference.ModdedLibrary).Delete();
                 mod_list_curtain.EnableElementAfter(btn_buildgame);
             }
         }
@@ -291,7 +291,7 @@ namespace GnomodiaUI
                 {
                     string refPath;
                     var path = el.Item1.GetType().Assembly.Location;
-                    if (FileExtensions.GetRelativePath(Reference.GnomodiaDirectory.FullName, path, out refPath))
+                    if (FileExtensions.GetRelativePathTo(Reference.GnomodiaDirectory.FullName, path, out refPath))
                     {
                         path = refPath;
                     }
@@ -332,7 +332,7 @@ namespace GnomodiaUI
         {
             return Task.Factory.StartNew(() =>
             {
-                Reference.GnomodiaDirectory.ContainingFile(RuntimeModController.Log.LogfileName).Delete();
+                Reference.GnomodiaDirectory.GetFile(RuntimeModController.Log.LogfileName).Delete();
                 DoStuff_EnsureDepenciesAreLoaded();
 
                 var newModConfig = new ModdingEnvironmentWriter(
@@ -340,7 +340,7 @@ namespace GnomodiaUI
                     found_valid_mods_data.Where(el => (el.Item3 == null) || !((bool)el.Item3.ItemArray[1])).Select(el => el.Item1).ToArray(),
                     false
                     );
-                newModConfig.SaveEnvironmentConfiguration(Reference.GnomodiaDirectory.ContainingFile(Reference.ConfigurationFileName));
+                newModConfig.SaveEnvironmentConfiguration(Reference.GnomodiaDirectory.GetFile(Reference.ConfigurationFileName));
                 is_build_required = false;
             });
         }

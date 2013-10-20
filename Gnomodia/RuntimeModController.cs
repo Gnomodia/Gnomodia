@@ -6,7 +6,7 @@ using System.Text;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Gnomodia.Util;
+using Gnomodia.Utility;
 
 namespace Gnomodia
 {   
@@ -301,7 +301,7 @@ namespace Gnomodia
             }
             public static void Write(string text, LogLevel level = LogLevel.Normal, TargetModes target = TargetModes.UseGlobalSetting)
             {
-                Write(text.Yield(), level, target);
+                Write(text.AsEnumerable(), level, target);
             }
             private static Exception lastException;
             public static void Write(string preText, Exception err, LogLevel level = LogLevel.Normal, TargetModes target = TargetModes.UseGlobalSetting)

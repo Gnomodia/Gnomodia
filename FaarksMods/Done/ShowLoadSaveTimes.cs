@@ -10,7 +10,7 @@ using Game;
 using Game.GUI;
 using Game.GUI.Controls;
 using GameLibrary;
-using Gnomodia.Util;
+using Gnomodia.Utility;
 using Microsoft.Xna.Framework;
 
 namespace Faark.Gnomoria.Mods

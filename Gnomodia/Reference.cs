@@ -18,8 +18,8 @@ namespace Gnomodia
             set { s_Settings = value; }
         }
 
+        public const string ConfigurationFileName = "Gnomodia.xml";
         public const string OriginalExecutable = "Gnomoria.exe";
-        public const string ConfigurationFileName = "GnomoriaModConfig.xml";
         public const string ModdedExecutable = "GnomoriaModded.dll";
         public const string OriginalLibrary = "gnomorialib.dll";
         public const string ModdedLibrary = "gnomorialibModded.dll";

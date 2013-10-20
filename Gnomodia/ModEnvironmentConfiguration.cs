@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using System.IO;
-using Gnomodia.Util;
+using Gnomodia.Utility;
 
 namespace Gnomodia
 {
@@ -120,10 +120,10 @@ namespace Gnomodia
                 && source_lib.Exists
                 && modded_exe.Exists
                 && modded_lib.Exists
-                && (source_exe.GenerateMD5Hash() == Hashes.SourceExecutable)
-                && (modded_exe.GenerateMD5Hash() == Hashes.ModdedExecutable)
-                && (source_lib.GenerateMD5Hash() == Hashes.SourceLibrary)
-                && (modded_lib.GenerateMD5Hash() == Hashes.ModdedLibrary);
+                && (source_exe.GenerateMd5Hash() == Hashes.SourceExecutable)
+                && (modded_exe.GenerateMd5Hash() == Hashes.ModdedExecutable)
+                && (source_lib.GenerateMd5Hash() == Hashes.SourceLibrary)
+                && (modded_lib.GenerateMd5Hash() == Hashes.ModdedLibrary);
 
             /*var source_exe = base_directoy.GetFiles().Single(file => file.Name.ToUpper() == source_exe_name.ToUpper());
             var modded_exe = base_directoy.GetFiles().SingleOrDefault(file => file.Name.ToUpper() == modded_exe_name.ToUpper());

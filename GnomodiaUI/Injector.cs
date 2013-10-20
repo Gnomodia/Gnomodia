@@ -6,7 +6,7 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
 using Gnomodia;
-using Gnomodia.Util;
+using Gnomodia.Utility;
 
 namespace GnomodiaUI
 {

@@ -4,7 +4,7 @@ using System.Reflection;
 using Game;
 using Game.GUI;
 using Game.GUI.Controls;
-using Gnomodia.Util;
+using Gnomodia.Utility;
 using Microsoft.Xna.Framework;
 using EventArgs = Game.GUI.Controls.EventArgs;
 

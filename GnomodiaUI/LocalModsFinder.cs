@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using Gnomodia;
-using Gnomodia.Util;
+using Gnomodia.Utility;
 
 namespace GnomodiaUI
 {

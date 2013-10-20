@@ -5,7 +5,7 @@ using System.Text;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Gnomodia.Util;
+using Gnomodia.Utility;
 
 namespace Gnomodia
 {

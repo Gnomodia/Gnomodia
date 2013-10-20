@@ -10,7 +10,7 @@ using Game;
 using Game.GUI;
 using Game.GUI.Controls;
 using GameLibrary;
-using Gnomodia.Util;
+using Gnomodia.Utility;
 using Microsoft.Xna.Framework;
 
 namespace Faark.Gnomoria.Mods
@@ -2654,7 +2654,7 @@ namespace Faark.Gnomoria.Mods
                     lbl.Ellipsis = false;
                     lbl.Width = panel.ClientWidth;
                     lbl.Height = (panel.ClientHeight / 2) - 5;
-                    lbl.Text = Gnomodia.Util.Neoforce.Helpers.BreakAndCenterStringAccoringToLineLength("Priorities are disabled for this profession. Jobs priorities will be used directly, instead.", (float)lbl.ClientWidth * 0.9f /* 90% of half */, lbl.Skin.Layers[0].Text.Font.Resource);
+                    lbl.Text = Gnomodia.Utility.SpriteFontHelpers.BreakAndCenterStringAccoringToLineLength(lbl.Skin.Layers[0].Text.Font.Resource, "Priorities are disabled for this profession. Jobs priorities will be used directly, instead.", (float)lbl.ClientWidth * 0.9f);
                     //lbl.Height = 50;
                     lbl.Left = 0;
                     lbl.Top = 0;

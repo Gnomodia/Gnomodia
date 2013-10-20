@@ -6,7 +6,7 @@ using System.Text;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Gnomodia.Util;
+using Gnomodia.Utility;
 
 namespace Gnomodia
 {
@@ -126,9 +126,9 @@ namespace Gnomodia
             : base(mod)
         {
             m_setupData = mod.SetupData;
-            m_dllHash = new System.IO.FileInfo(new System.Uri(Type.Assembly.CodeBase).LocalPath).GenerateMD5Hash();
+            m_dllHash = new System.IO.FileInfo(new System.Uri(Type.Assembly.CodeBase).LocalPath).GenerateMd5Hash();
             string refPath;
-            if (Util.FileExtensions.GetRelativePath(System.IO.Directory.GetCurrentDirectory(), Type.Assembly.CodeBase, out refPath))
+            if (Utility.FileExtensions.GetRelativePathTo(System.IO.Directory.GetCurrentDirectory(), Type.Assembly.CodeBase, out refPath))
             {
                 m_assemblyFileName = refPath;
             }

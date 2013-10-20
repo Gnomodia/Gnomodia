@@ -4,7 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Gnomodia;
 using Gnomodia.HelperMods;
-using Gnomodia.Util;
+using Gnomodia.Utility;
 
 namespace GnomodiaUI
 {
@@ -73,24 +73,24 @@ namespace GnomodiaUI
                 all_mods_to_process = all_mods_to_process.Union(new ModDialog()).ToArray();
             }
 
-            var source_exe = Reference.GameDirectory.ContainingFile(Reference.OriginalExecutable);
+            var source_exe = Reference.GameDirectory.GetFile(Reference.OriginalExecutable);
                 //new System.IO.FileInfo(System.IO.Path.Combine(base_directoy.FullName, source_exe_name));
-            var modded_exe = Reference.GnomodiaDirectory.ContainingFile(Reference.ModdedExecutable);
+            var modded_exe = Reference.GnomodiaDirectory.GetFile(Reference.ModdedExecutable);
                 //new System.IO.FileInfo(System.IO.Path.Combine(base_directoy.FullName, modded_exe_name));
-            var source_lib = Reference.GameDirectory.ContainingFile(Reference.OriginalLibrary);
-            var modded_lib = Reference.GnomodiaDirectory.ContainingFile(Reference.ModdedLibrary);
+            var source_lib = Reference.GameDirectory.GetFile(Reference.OriginalLibrary);
+            var modded_lib = Reference.GnomodiaDirectory.GetFile(Reference.ModdedLibrary);
 
 
 
             
             game_injector = new GnomoriaExeInjector(source_exe);
             lib_injector = new Injector(source_lib);
-            config.Hashes.SourceExecutable = source_exe.GenerateMD5Hash();
-            config.Hashes.SourceLibrary = source_lib.GenerateMD5Hash();
+            config.Hashes.SourceExecutable = source_exe.GenerateMd5Hash();
+            config.Hashes.SourceLibrary = source_lib.GenerateMd5Hash();
 
             // may switch those 2 later to have it outside...
             game_injector.Inject_SetContentRootDirectoryToCurrentDir_InsertAtStartOfMain();
-            game_injector.Inject_CallTo_ModRuntimeController_Initialize_AtStartOfMain(Reference.GnomodiaDirectory.ContainingFile(Reference.GnomodiaLibrary));
+            game_injector.Inject_CallTo_ModRuntimeController_Initialize_AtStartOfMain(Reference.GnomodiaDirectory.GetFile(Reference.GnomodiaLibrary));
             //game_injector.Inject_TryCatchWrapperAroundEverthingInMain_WriteCrashLog();
             //game_injector.Inject_CurrentAppDomain_AddResolveEventAtStartOfMain();
             game_injector.Inject_SaveLoadCalls();
@@ -108,15 +108,15 @@ namespace GnomodiaUI
             }
 
             var allLoadedStuff = processedMods.Select(mod => Tuple.Create(mod, mod.Dependencies.Union(mod.InitAfter.Where(befor => processedMods.Contains(befor.GetInstance()))).Select(type => type.GetInstance())));
-            var processedMods_sortedByDependencyAndInitAfter = DependencySort.Sort(allLoadedStuff);
+            var processedMods_sortedByDependencyAndInitAfter = DependencySorter.Sort(allLoadedStuff);
 
             config.SetModReferences(processedMods_sortedByDependencyAndInitAfter.Select(mod => new ModReference(mod)).ToArray());
 
             //Mono.Cecil.WriterParameters
             game_injector.Write(modded_exe);
             lib_injector.Write(modded_lib);
-            config.Hashes.ModdedExecutable = modded_exe.GenerateMD5Hash();
-            config.Hashes.ModdedLibrary = modded_lib.GenerateMD5Hash();
+            config.Hashes.ModdedExecutable = modded_exe.GenerateMd5Hash();
+            config.Hashes.ModdedLibrary = modded_lib.GenerateMd5Hash();
         }
         public void SaveEnvironmentConfiguration(System.IO.FileInfo xmlConfigFile)
         {
