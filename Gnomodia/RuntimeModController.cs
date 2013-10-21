@@ -60,7 +60,7 @@ namespace Gnomodia
             {
                 active_mods = new List<IMod>();
                 var loaded_modfiles = new List<string>();
-                var config = ModEnvironmentConfiguration.Load(new System.IO.FileInfo(Path.Combine(Reference.GnomodiaDirectory.FullName, "GnomoriaModConfig.xml")));
+                var config = ModEnvironmentConfiguration.Load(new System.IO.FileInfo(Path.Combine(Reference.GnomodiaDirectory.FullName, Reference.ConfigurationFileName)));
                 foreach (var modRef in config.ModReferences)
                 {
                     if (!loaded_modfiles.Contains(modRef.AssemblyFile.FullName))
