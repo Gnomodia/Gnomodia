@@ -19,22 +19,21 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using Gnomodia;
 using Gnomodia.Properties;
-using GnomodiaUI.Properties;
 using GnomoriaModUI;
+using Microsoft.Win32;
 
 namespace GnomodiaUI
 {
     static class Program
     {
+        private static bool s_ApplicationSettingsEnabled;
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -81,8 +80,11 @@ namespace GnomodiaUI
                     //Application.Run(new NewUI());
                     break;
                 case 2:
-                    Application.EnableVisualStyles();
-                    Application.SetCompatibleTextRenderingDefault(false);
+                    if (!s_ApplicationSettingsEnabled)
+                    {
+                        Application.EnableVisualStyles();
+                        Application.SetCompatibleTextRenderingDefault(false);
+                    }
                     Application.Run(new Form1());
                     break;
             }
@@ -95,8 +97,41 @@ namespace GnomodiaUI
             if (File.Exists(gnomoriaPath))
                 return true;
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            if (GetSteamInstallationPath(out installationPath) && !string.IsNullOrEmpty(installationPath))
+            {
+                gnomoriaPath = Path.Combine(installationPath, Reference.OriginalExecutable);
+                if (File.Exists(gnomoriaPath))
+                {
+                    Settings.Default.GnomoriaInstallationPath = installationPath;
+                    Settings.Default.Save();
+                    return true;
+                }
+            }
+
+            if (GetManualInstallationPath(out installationPath))
+            {
+                gnomoriaPath = Path.Combine(installationPath, Reference.OriginalExecutable);
+                if (File.Exists(gnomoriaPath))
+                {
+                    Settings.Default.GnomoriaInstallationPath = installationPath;
+                    Settings.Default.Save();
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool GetManualInstallationPath(out string installationPath)
+        {
+            string gnomoriaPath = "";
+            installationPath = null;
+            {
+                // TODO: Remove when switching from Forms to WPF
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                s_ApplicationSettingsEnabled = true;
+            }
             while (!File.Exists(gnomoriaPath))
             {
                 using (FolderBrowserDialog fbd = new FolderBrowserDialog
@@ -106,17 +141,29 @@ namespace GnomodiaUI
                 })
                 {
                     if (fbd.ShowDialog() != DialogResult.OK)
+                    {
                         return false;
+                    }
 
                     installationPath = Settings.Default.GnomoriaInstallationPath = fbd.SelectedPath;
                     gnomoriaPath = Path.Combine(installationPath, Reference.OriginalExecutable);
                 }
                 Settings.Default.Save();
             }
+            return true;
+        }
 
-            // We must restart after showing the folder browser dialog, as it interferes with XNA otherwise.
-            //GnomodiaModulizer.Instance.RestartGame();
-            return false;
+        private static bool GetSteamInstallationPath(out string installationPath)
+        {
+            var installationKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 224500");
+            if (installationKey == null)
+            {
+                installationPath = null;
+                return false;
+            }
+
+            installationPath = (string)installationKey.GetValue("InstallLocation");
+            return true;
         }
     }
 }
