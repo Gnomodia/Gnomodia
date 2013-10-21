@@ -42,17 +42,27 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("02958cde-03cf-43f4-9ead-39d820bf1a1a")]
 
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers 
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+/*
+ * Gnomodia uses semantic versioning! (http://semver.org/)
+ * Do not change these numbers haphazardly! In short, this
+ * is how it works:
+ * 
+ * The version format is X.Y.Z (Major.Minor.Patch).
+ * Fixes not affecting the API increment the patch version,
+ * backwards compatible API additions/changes increment the minor version,
+ * and backwards incompatible API changes increment the major version.
+ * 
+ * Major version zero (0.y.z) is for initial development. Anything may change at any time.
+ * The public API should not be considered stable.
+ * 
+ * Version 1.0.0 defines the public API. The way in which the version number is incremented
+ * after this release is dependent on this public API and how it changes.
+ * 
+ * For complete information, please read http://semver.org/
+ */
+
+[assembly: AssemblyVersion("0.1.0")]
+[assembly: AssemblyFileVersion("0.1.0")]
+[assembly: AssemblyInformationalVersion("0.1.0-alpha+0.9")]
 
 [assembly: InternalsVisibleTo("GnomodiaUI")]
