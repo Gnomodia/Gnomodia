@@ -19,14 +19,17 @@
  */
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Game;
 using Game.GUI;
 using Game.GUI.Controls;
 using Gnomodia.Utility;
 using Microsoft.Xna.Framework;
 using EventArgs = Game.GUI.Controls.EventArgs;
+using System;
 
 namespace Gnomodia.HelperMods
 {
@@ -49,6 +52,10 @@ namespace Gnomodia.HelperMods
         }
         #endregion
 
+        private static HUD s_Hud;
+        private static Label s_GnomodiaVersionLabel;
+        private static Label s_GnomoriaVersionLabel;
+
         public static ModDialog Instance
         {
             get
@@ -67,6 +74,9 @@ namespace Gnomodia.HelperMods
                 yield return new MethodHook(
                     typeof(MainMenuWindow).GetConstructor(new[] { typeof(Manager) }),
                     Method.Of<MainMenuWindow, Manager>(AddMainMenuModButton));
+                yield return new MethodHook(
+                    typeof(MainMenuWindow).GetMethod("ceb32813158d52d65f7977184d5fc8c24", BindingFlags.Instance | BindingFlags.NonPublic),
+                    Method.Of<MainMenuWindow, object, System.EventArgs>(Reset));
             }
         }
 
@@ -88,7 +98,7 @@ namespace Gnomodia.HelperMods
             modsButton.Width = (int)skinLayer.Text.Font.Resource.MeasureString(modsButton.Text).X + skinLayer.ContentMargins.Horizontal + 1;
             modsButton.ToolTip.Text = "Show information about and settings for mods";
             modsButton.Margins = new Margins(4, 4, 4, 4);
-            modsButton.Click += ModButtonOnClick;
+            modsButton.Click += ModsButtonOnClick;
             modsButton.Left = helpButton.Left;
             buttonPanel.Add(modsButton);
 
@@ -115,19 +125,42 @@ namespace Gnomodia.HelperMods
             modsButton.Margins = new Margins(0, 2, 0, 2);
             modsButton.Text = "Mods";
             buttonPanel.Height += modsButton.Height + 4;
-            modsButton.Click += method_47;
+            modsButton.Click += MainMenuModsButtonClick;
             buttonPanel.Add(modsButton);
 
             exitButton.Top = modsButton.Top + modsButton.Height + modsButton.Margins.Bottom + exitButton.Margins.Top;
+
+            if (!mainMenu.FindControlRecursive(l => l.Text.StartsWith("v"), out s_GnomoriaVersionLabel))
+                return;
+
+            s_GnomoriaVersionLabel.Text = "Gnomoria " + s_GnomoriaVersionLabel.Text;
+
+            s_GnomodiaVersionLabel = new Label(manager);
+            s_GnomodiaVersionLabel.Init();
+            s_GnomodiaVersionLabel.Alignment = Alignment.MiddleRight;
+            s_GnomodiaVersionLabel.Text = "Gnomodia v" + typeof(ModDialog).Assembly.GetInformationalVersion();
+            mainMenu.Add(s_GnomodiaVersionLabel);
+
+            Reset(mainMenu, null, null);
         }
 
-        private static void method_47(object sender, EventArgs e)
+        public static void Reset(MainMenuWindow mainMenu, object sender, System.EventArgs eventArgs)
+        {
+            s_GnomodiaVersionLabel.CalculateWidth();
+            s_GnomodiaVersionLabel.Left = mainMenu.ClientWidth - s_GnomodiaVersionLabel.Width - s_GnomodiaVersionLabel.Margins.Right;
+            s_GnomodiaVersionLabel.Top = s_GnomoriaVersionLabel.Top;
+
+            s_GnomoriaVersionLabel.CalculateWidth();
+            s_GnomoriaVersionLabel.Left = mainMenu.ClientWidth - s_GnomoriaVersionLabel.Width - s_GnomoriaVersionLabel.Margins.Right;
+            s_GnomoriaVersionLabel.Top = s_GnomodiaVersionLabel.Top - s_GnomodiaVersionLabel.Margins.Top - 11 - s_GnomoriaVersionLabel.Margins.Bottom;
+        }
+
+        private static void MainMenuModsButtonClick(object sender, EventArgs e)
         {
             GnomanEmpire.Instance.GuiManager.MenuStack.PushWindow(new ModsMenu(GnomanEmpire.Instance.GuiManager.Manager));
         }
 
-        private static HUD s_Hud;
-        private static void ModButtonOnClick(object sender, EventArgs eventArgs)
+        private static void ModsButtonOnClick(object sender, EventArgs eventArgs)
         {
             InGameHUD inGameHud = GnomanEmpire.Instance.GuiManager.HUD;
             bool isOtherWindow = !(inGameHud.ActiveWindow is ModDialogUI);
@@ -246,7 +279,7 @@ namespace Gnomodia.HelperMods
             {
                 _titleLabel.Text = "Gnomodia";
 
-                _infoLabel.Text = "Modding toolkit to add additional features or modify existing features of Gnomoria.";
+                _infoLabel.Text = "Modding toolkit to add additional features or modify existing features of Gnomoria. Gnomodia is based on a Modding Framework for Gnormoia by Faark (faark.de).";
 
                 _versionLabel.Text = string.Format("Version: {0}", typeof(ModDialog).Assembly.GetName().Version);
                 _authorLabel.Text = "Author(s): The Gnomodia Team";

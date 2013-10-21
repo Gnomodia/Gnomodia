@@ -42,5 +42,10 @@ namespace Gnomodia.Utility
             foundControl = null;
             return false;
         }
+
+        public static void CalculateWidth(this Label label)
+        {
+            label.Width = (int) label.Skin.Layers[0].Text.Font.Resource.MeasureString(label.Text).X + 2;
+        }
     }
 }

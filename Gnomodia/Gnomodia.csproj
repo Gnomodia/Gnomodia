@@ -97,6 +97,7 @@
     <Compile Include="ModEnvironmentConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuntimeModController.cs" />
+    <Compile Include="Utility\MiscellaneousExtensions.cs" />
     <Compile Include="Utility\WeakReference.cs" />
   </ItemGroup>
   <ItemGroup>
