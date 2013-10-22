@@ -32,7 +32,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <!-- Window style -->
     <Style TargetType="{x:Type local:GnomoriaWindow}">
         <Setter Property="WindowStyle" Value="None"/>
@@ -44,52 +44,69 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:GnomoriaWindow}">
-                    <Border BorderThickness="{TemplateBinding BorderThickness}"
-                            BorderBrush="{TemplateBinding BorderBrush}">
-                        <Grid Background="Transparent">
-                            <Grid>
+                    <Grid Background="Transparent">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="28" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="8" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="6" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="28" />
+                            </Grid.ColumnDefinitions>
+
+                            <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="99" Grid.RowSpan="99">
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="28"/>
+                                    <RowDefinition Height="28" />
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="8" />
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="6" />
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="28" />
                                 </Grid.ColumnDefinitions>
 
-                                <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="99" Grid.RowSpan="99">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="28" />
-                                        <RowDefinition Height="*" />
-                                        <RowDefinition Height="8" />
-                                    </Grid.RowDefinitions>
+                                <Image Grid.Row="0" Grid.Column="0" x:Name="topLeftWindowDecoration" Stretch="None"/>
+                                <Grid Grid.Row="0" Grid.Column="1">
+                                    <Grid.Background>
+                                        <VisualBrush TileMode="Tile" Stretch="None" Viewport="6,0,8,28" ViewportUnits="Absolute">
+                                            <VisualBrush.Visual>
+                                                <Image x:Name="topMiddleWindowDecoration" Stretch="None" Height="28" Width="14">
+                                                    <Image.Clip>
+                                                        <RectangleGeometry Rect="6,0,8,28" />
+                                                    </Image.Clip>
+                                                </Image>
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Grid.Background>
+                                </Grid>
+                                <Grid Grid.Row="1" Grid.Column="0">
+                                    <Grid.Background>
+                                        <VisualBrush TileMode="Tile" Stretch="None" Viewport="0,0,6,8" ViewportUnits="Absolute">
+                                            <VisualBrush.Visual>
+                                                <Image x:Name="leftMiddleWindowDecoration" Stretch="None" Height="8" Width="6">
+                                                    <Image.Clip>
+                                                        <RectangleGeometry Rect="0,0,6,8" />
+                                                    </Image.Clip>
+                                                </Image>
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Grid.Background>
+                                </Grid>
+                                <local:GnomoriaLabel Grid.Column="1" Text="{TemplateBinding Title}" />
+                                <Grid Grid.Row="1" Grid.Column="2">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="8"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="28" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="6" />
                                     </Grid.ColumnDefinitions>
-
-                                    <Image Grid.Row="0" Grid.Column="0" x:Name="topLeftWindowDecoration" Stretch="None"/>
-                                    <Grid Grid.Row="0" Grid.Column="1">
-                                        <Grid.Background>
-                                            <VisualBrush TileMode="Tile" Stretch="None" Viewport="6,0,8,28" ViewportUnits="Absolute">
-                                                <VisualBrush.Visual>
-                                                    <Image x:Name="topMiddleWindowDecoration" Stretch="None" Height="28" Width="14">
-                                                        <Image.Clip>
-                                                            <RectangleGeometry Rect="6,0,8,28" />
-                                                        </Image.Clip>
-                                                    </Image>
-                                                </VisualBrush.Visual>
-                                            </VisualBrush>
-                                        </Grid.Background>
-                                    </Grid>
-                                    <Grid Grid.Row="1" Grid.Column="0">
+                                    <Grid Grid.Column="1">
                                         <Grid.Background>
                                             <VisualBrush TileMode="Tile" Stretch="None" Viewport="0,0,6,8" ViewportUnits="Absolute">
                                                 <VisualBrush.Visual>
-                                                    <Image x:Name="leftMiddleWindowDecoration" Stretch="None" Height="8" Width="6">
+                                                    <Image x:Name="rightMiddleWindowDecoration" Stretch="None" Height="8" Width="6">
                                                         <Image.Clip>
                                                             <RectangleGeometry Rect="0,0,6,8" />
                                                         </Image.Clip>
@@ -98,40 +115,20 @@
                                             </VisualBrush>
                                         </Grid.Background>
                                     </Grid>
-                                    <local:GnomoriaLabel Grid.Column="1" Text="{TemplateBinding Title}" />
-                                    <Grid Grid.Row="1" Grid.Column="2">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="6" />
-                                        </Grid.ColumnDefinitions>
-                                        <Grid Grid.Column="1">
-                                            <Grid.Background>
-                                                <VisualBrush TileMode="Tile" Stretch="None" Viewport="0,0,6,8" ViewportUnits="Absolute">
-                                                    <VisualBrush.Visual>
-                                                        <Image x:Name="rightMiddleWindowDecoration" Stretch="None" Height="8" Width="6">
-                                                            <Image.Clip>
-                                                                <RectangleGeometry Rect="0,0,6,8" />
-                                                            </Image.Clip>
-                                                        </Image>
-                                                    </VisualBrush.Visual>
-                                                </VisualBrush>
-                                            </Grid.Background>
-                                        </Grid>
-                                    </Grid>
-                                    <Image Grid.Row="2" Grid.Column="0" x:Name="bottomLeftWindowDecoration" Stretch="None"/>
-                                    <Grid Grid.Row="2" Grid.Column="1">
-                                        <Grid.Background>
-                                            <VisualBrush TileMode="Tile" Stretch="None" Viewport="6,2,6,6" ViewportUnits="Absolute">
-                                                <VisualBrush.Visual>
-                                                    <Image x:Name="bottomMiddleWindowDecoration" Stretch="None" Height="8" Width="12">
-                                                        <Image.Clip>
-                                                            <RectangleGeometry Rect="6,2,6,6" />
-                                                        </Image.Clip>
-                                                    </Image>
-                                                </VisualBrush.Visual>
-                                            </VisualBrush>
-                                        </Grid.Background>
-                                    </Grid>
+                                </Grid>
+                                <Image Grid.Row="2" Grid.Column="0" x:Name="bottomLeftWindowDecoration" Stretch="None"/>
+                                <Grid Grid.Row="2" Grid.Column="1">
+                                    <Grid.Background>
+                                        <VisualBrush TileMode="Tile" Stretch="None" Viewport="6,2,6,6" ViewportUnits="Absolute">
+                                            <VisualBrush.Visual>
+                                                <Image x:Name="bottomMiddleWindowDecoration" Stretch="None" Height="8" Width="12">
+                                                    <Image.Clip>
+                                                        <RectangleGeometry Rect="6,2,6,6" />
+                                                    </Image.Clip>
+                                                </Image>
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Grid.Background>
                                 </Grid>
                                 <Grid Grid.Row="2" Grid.Column="2">
                                     <Grid.ColumnDefinitions>
@@ -159,85 +156,86 @@
                                         </Image>
                                     </Grid>
                                 </Grid>
+                            </Grid>
 
-                                <Rectangle x:Name="moveRectangle" Fill="Transparent"
+                            <Rectangle x:Name="moveRectangle" Fill="Transparent"
                                            Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
 
-                                <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
-                                    <Button x:Name="closeButton">
-                                        <Button.Template>
-                                            <ControlTemplate>
-                                                <Image x:Name="closeButtonDecoration" Stretch="None" Height="28" Width="56">
-                                                    <Image.Style>
-                                                        <Style TargetType="Image">
-                                                            <Setter Property="Clip">
-                                                                <Setter.Value>
-                                                                    <RectangleGeometry Rect="0,0,28,28" />
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                            <Setter Property="RenderTransform">
-                                                                <Setter.Value>
-                                                                    <TranslateTransform X="0" Y="0" />
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                            <Style.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="Clip">
-                                                                        <Setter.Value>
-                                                                            <RectangleGeometry Rect="28,0,28,28" />
-                                                                        </Setter.Value>
-                                                                    </Setter>
-                                                                    <Setter Property="RenderTransform">
-                                                                        <Setter.Value>
-                                                                            <TranslateTransform X="-28" Y="0" />
-                                                                        </Setter.Value>
-                                                                    </Setter>
-                                                                </Trigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Image.Style>
-                                                </Image>
-                                            </ControlTemplate>
-                                        </Button.Template>
-                                    </Button>
-                                </StackPanel>
-                                <Grid Background="{TemplateBinding Background}"
+                            <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
+                                <Button x:Name="closeButton">
+                                    <Button.Template>
+                                        <ControlTemplate>
+                                            <Image x:Name="closeButtonDecoration" Stretch="None" Height="28" Width="56">
+                                                <Image.Style>
+                                                    <Style TargetType="Image">
+                                                        <Setter Property="Clip">
+                                                            <Setter.Value>
+                                                                <RectangleGeometry Rect="0,0,28,28" />
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Setter Property="RenderTransform">
+                                                            <Setter.Value>
+                                                                <TranslateTransform X="0" Y="0" />
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Clip">
+                                                                    <Setter.Value>
+                                                                        <RectangleGeometry Rect="28,0,28,28" />
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                                <Setter Property="RenderTransform">
+                                                                    <Setter.Value>
+                                                                        <TranslateTransform X="-28" Y="0" />
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Image.Style>
+                                            </Image>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+                            <Grid Background="{TemplateBinding Background}"
                                            Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,6,-2">
-                                    <AdornerDecorator>
-                                        <ContentPresenter/>
-                                    </AdornerDecorator>
-                                </Grid>
+                                <AdornerDecorator>
+                                    <ContentPresenter/>
+                                </AdornerDecorator>
                             </Grid>
-                            <Grid x:Name="resizeGrid">
-                                <Rectangle
+                        </Grid>
+                        <Grid x:Name="resizeGrid">
+                            <Rectangle
                                         Stroke="{x:Null}"
                                         Fill="Transparent"
                                         VerticalAlignment="Top"
                                         Height="5"
                                         x:Name="top"
                                         Margin="5,0,5,0" />
-                                <Rectangle
+                            <Rectangle
                                         Stroke="{x:Null}"
                                         Fill="Transparent"
                                         x:Name="bottom"
                                         Height="5"
                                         VerticalAlignment="Bottom"
                                         Margin="5,0,5,0" />
-                                <Rectangle
+                            <Rectangle
                                         Stroke="{x:Null}"
                                         Fill="Transparent"
                                         HorizontalAlignment="Left"
                                         Margin="0,5,0,5"
                                         Width="5"
                                         x:Name="left"/>
-                                <Rectangle
+                            <Rectangle
                                         Stroke="{x:Null}"
                                         Fill="Transparent"
                                         Margin="0,5,0,5"
                                         Width="5"
                                         HorizontalAlignment="Right"
                                         x:Name="right" />
-                                <Rectangle
+                            <Rectangle
                                         Stroke="{x:Null}"
                                         Fill="Transparent"
                                         HorizontalAlignment="Left"
@@ -245,7 +243,7 @@
                                         Width="5"
                                         Height="5"
                                         x:Name="bottomLeft" />
-                                <Rectangle
+                            <Rectangle
                                         Stroke="{x:Null}"
                                         Fill="Transparent"
                                         VerticalAlignment="Bottom"
@@ -253,7 +251,7 @@
                                         Width="5"
                                         HorizontalAlignment="Right"
                                         x:Name="bottomRight" />
-                                <Rectangle
+                            <Rectangle
                                         Stroke="{x:Null}"
                                         Fill="Transparent"
                                         HorizontalAlignment="Right"
@@ -261,7 +259,7 @@
                                         Height="5"
                                         VerticalAlignment="Top"
                                         x:Name="topRight" />
-                                <Rectangle
+                            <Rectangle
                                     Stroke="{x:Null}"
                                     Fill="Transparent"
                                     HorizontalAlignment="Left"
@@ -269,9 +267,279 @@
                                     VerticalAlignment="Top"
                                     Height="5"
                                     x:Name="topLeft" />
-                            </Grid>
                         </Grid>
-                    </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- TabControl style -->
+    <Style TargetType="{x:Type local:GnomoriaTabControl}">
+        <Setter Property="Margin" Value="6,4,6,4" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:GnomoriaTabControl}">
+                    <Grid KeyboardNavigation.TabNavigation="Local">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TabPanel x:Name="HeaderPanel"
+                                  Grid.Row="0"
+                                  Panel.ZIndex="1"
+                                  Margin="0,0,4,0"
+                                  IsItemsHost="True"
+                                  KeyboardNavigation.TabIndex="1"
+                                  Background="Transparent" />
+                        <Grid Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="8" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="8" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="8" />
+                            </Grid.ColumnDefinitions>
+
+                            <Grid Grid.Row="0" Grid.Column="0">
+                                <Grid.Background>
+                                    <VisualBrush TileMode="Tile" Stretch="None" Viewport="0,0,8,8" ViewportUnits="Absolute">
+                                        <VisualBrush.Visual>
+                                            <Image x:Name="topLeftTabDecoration" Stretch="None" Height="8" Width="8">
+                                                <Image.Clip>
+                                                    <RectangleGeometry Rect="0,0,8,8" />
+                                                </Image.Clip>
+                                            </Image>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Grid.Background>
+                            </Grid>
+
+                            <Grid Grid.Row="0" Grid.Column="2">
+                                <Grid.Background>
+                                    <VisualBrush TileMode="Tile" Stretch="None" Viewport="0,0,8,8" ViewportUnits="Absolute">
+                                        <VisualBrush.Visual>
+                                            <Image x:Name="topRightTabDecoration" Stretch="None" Height="8" Width="18">
+                                                <Image.Clip>
+                                                    <RectangleGeometry Rect="10,0,8,8" />
+                                                </Image.Clip>
+                                            </Image>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Grid.Background>
+                            </Grid>
+
+                            <Grid Grid.Row="0" Grid.Column="1">
+                                <Grid.Background>
+                                    <VisualBrush TileMode="Tile" Stretch="None" Viewport="0,0,6,8" ViewportUnits="Absolute">
+                                        <VisualBrush.Visual>
+                                            <Image x:Name="topMiddleTabDecoration" Stretch="None" Height="8" Width="16">
+                                                <Image.Clip>
+                                                    <RectangleGeometry Rect="6,0,6,8" />
+                                                </Image.Clip>
+                                            </Image>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Grid.Background>
+                            </Grid>
+
+                            <Grid Grid.Row="1" Grid.Column="0">
+                                <Grid.Background>
+                                    <VisualBrush TileMode="Tile" Stretch="None" Viewport="0,0,8,6" ViewportUnits="Absolute">
+                                        <VisualBrush.Visual>
+                                            <Image x:Name="leftMiddleTabDecoration" Stretch="None" Height="12" Width="8">
+                                                <Image.Clip>
+                                                    <RectangleGeometry Rect="0,6,8,6" />
+                                                </Image.Clip>
+                                            </Image>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Grid.Background>
+                            </Grid>
+
+                            <Grid Grid.Row="1" Grid.Column="2">
+                                <Grid.Background>
+                                    <VisualBrush TileMode="Tile" Stretch="None" Viewport="0,0,8,6" ViewportUnits="Absolute">
+                                        <VisualBrush.Visual>
+                                            <Image x:Name="rightMiddleTabDecoration" Stretch="None" Height="12" Width="18">
+                                                <Image.Clip>
+                                                    <RectangleGeometry Rect="10,6,8,6" />
+                                                </Image.Clip>
+                                            </Image>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Grid.Background>
+                            </Grid>
+
+                            <Grid Grid.Row="2" Grid.Column="0">
+                                <Grid.Background>
+                                    <VisualBrush TileMode="Tile" Stretch="None" Viewport="0,0,8,8" ViewportUnits="Absolute">
+                                        <VisualBrush.Visual>
+                                            <Image x:Name="bottomLeftTabDecoration" Stretch="None" Height="18" Width="8">
+                                                <Image.Clip>
+                                                    <RectangleGeometry Rect="0,10,8,8" />
+                                                </Image.Clip>
+                                            </Image>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Grid.Background>
+                            </Grid>
+
+                            <Grid Grid.Row="2" Grid.Column="2">
+                                <Grid.Background>
+                                    <VisualBrush TileMode="Tile" Stretch="None" Viewport="0,0,8,8" ViewportUnits="Absolute">
+                                        <VisualBrush.Visual>
+                                            <Image x:Name="bottomRightTabDecoration" Stretch="None" Height="18" Width="18">
+                                                <Image.Clip>
+                                                    <RectangleGeometry Rect="10,10,8,8" />
+                                                </Image.Clip>
+                                            </Image>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Grid.Background>
+                            </Grid>
+
+                            <Grid Grid.Row="2" Grid.Column="1">
+                                <Grid.Background>
+                                    <VisualBrush TileMode="Tile" Stretch="None" Viewport="0,0,6,8" ViewportUnits="Absolute">
+                                        <VisualBrush.Visual>
+                                            <Image x:Name="bottomMiddleTabDecoration" Stretch="None" Height="18" Width="16">
+                                                <Image.Clip>
+                                                    <RectangleGeometry Rect="6,10,6,8" />
+                                                </Image.Clip>
+                                            </Image>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Grid.Background>
+                            </Grid>
+
+                            <Grid Grid.Column="1" Grid.Row="1" Background="#506270"/>
+                            <ContentPresenter x:Name="PART_SelectedContentHost"
+                                              Grid.Row="1"
+                                              Grid.Column="1"
+                                              Margin="4"
+                                              ContentSource="SelectedContent" />
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- TabItem style -->
+    <Style TargetType="{x:Type local:GnomoriaTabItem}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:GnomoriaTabItem}">
+                    <Grid x:Name="Root" Height="32" Margin="0,0,0,-6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="6" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="6" />
+                        </Grid.ColumnDefinitions>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="SelectionStates">
+                                <VisualState x:Name="Unselected">
+                                    <Storyboard>
+                                        <RectAnimationUsingKeyFrames Storyboard.TargetName="leftTabDecoration"
+                                                                     Storyboard.TargetProperty="(UIElement.Clip).(RectangleGeometry.Rect)">
+                                            <DiscreteRectKeyFrame KeyTime="0" Value="0,4,6,22" />
+                                        </RectAnimationUsingKeyFrames>
+                                        <RectAnimationUsingKeyFrames Storyboard.TargetName="leftTabVisualBrush"
+                                                                     Storyboard.TargetProperty="(TileBrush.Viewport)">
+                                            <DiscreteRectKeyFrame KeyTime="0" Value="0,0,6,22" />
+                                        </RectAnimationUsingKeyFrames>
+
+                                        <RectAnimationUsingKeyFrames Storyboard.TargetName="middleTabDecoration"
+                                                                     Storyboard.TargetProperty="(UIElement.Clip).(RectangleGeometry.Rect)">
+                                            <DiscreteRectKeyFrame KeyTime="0" Value="6,4,54,22" />
+                                        </RectAnimationUsingKeyFrames>
+                                        <RectAnimationUsingKeyFrames Storyboard.TargetName="middleTabVisualBrush"
+                                                                     Storyboard.TargetProperty="(TileBrush.Viewport)">
+                                            <DiscreteRectKeyFrame KeyTime="0" Value="0,0,54,22" />
+                                        </RectAnimationUsingKeyFrames>
+
+                                        <RectAnimationUsingKeyFrames Storyboard.TargetName="rightTabDecoration"
+                                                                     Storyboard.TargetProperty="(UIElement.Clip).(RectangleGeometry.Rect)">
+                                            <DiscreteRectKeyFrame KeyTime="0" Value="58,4,6,22" />
+                                        </RectAnimationUsingKeyFrames>
+                                        <RectAnimationUsingKeyFrames Storyboard.TargetName="rightTabVisualBrush"
+                                                                     Storyboard.TargetProperty="(TileBrush.Viewport)">
+                                            <DiscreteRectKeyFrame KeyTime="0" Value="0,0,6,22" />
+                                        </RectAnimationUsingKeyFrames>
+                                        
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Root"
+                                                                       Storyboard.TargetProperty="(FrameworkElement.Height)">
+                                            <DiscreteDoubleKeyFrame KeyTime="0" Value="22" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <ThicknessAnimationUsingKeyFrames Storyboard.TargetName="Root"
+                                                                          Storyboard.TargetProperty="(FrameworkElement.Margin)">
+                                            <DiscreteThicknessKeyFrame KeyTime="0" Value="0,3,0,0" />
+                                        </ThicknessAnimationUsingKeyFrames>
+                                        <ThicknessAnimationUsingKeyFrames Storyboard.TargetName="headerLabel"
+                                                                          Storyboard.TargetProperty="(FrameworkElement.Margin)">
+                                            <DiscreteThicknessKeyFrame KeyTime="0" Value="2,6,2,0" />
+                                        </ThicknessAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Selected">
+                                    <Storyboard />
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+
+                        <Grid Grid.Column="0">
+                            <Grid.Background>
+                                <VisualBrush x:Name="leftTabVisualBrush" TileMode="Tile" Stretch="None" Viewport="0,0,6,32" ViewportUnits="Absolute">
+                                    <VisualBrush.Visual>
+                                        <Image x:Name="leftTabDecoration" Stretch="None" Height="256" Width="64">
+                                            <Image.Clip>
+                                                <RectangleGeometry Rect="0,64,6,32" />
+                                            </Image.Clip>
+                                        </Image>
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </Grid.Background>
+                        </Grid>
+
+                        <Grid Grid.Column="1">
+                            <Grid.Background>
+                                <VisualBrush x:Name="middleTabVisualBrush" TileMode="Tile" Stretch="None" Viewport="0,0,52,32" ViewportUnits="Absolute">
+                                    <VisualBrush.Visual>
+                                        <Image x:Name="middleTabDecoration" Stretch="None" Height="256" Width="64">
+                                            <Image.Clip>
+                                                <RectangleGeometry Rect="6,64,52,32" />
+                                            </Image.Clip>
+                                        </Image>
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </Grid.Background>
+                        </Grid>
+
+                        <Grid Grid.Column="2">
+                            <Grid.Background>
+                                <VisualBrush x:Name="rightTabVisualBrush" TileMode="Tile" Stretch="None" Viewport="0,0,6,32" ViewportUnits="Absolute">
+                                    <VisualBrush.Visual>
+                                        <Image x:Name="rightTabDecoration" Stretch="None" Height="256" Width="64">
+                                            <Image.Clip>
+                                                <RectangleGeometry Rect="58,64,6,32" />
+                                            </Image.Clip>
+                                        </Image>
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </Grid.Background>
+                        </Grid>
+
+                        <local:GnomoriaLabel x:Name="headerLabel" Grid.Column="1" Text="{TemplateBinding Header}" Margin="2,0,2,0" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Panel.ZIndex" Value="100" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

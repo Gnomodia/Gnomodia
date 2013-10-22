@@ -24,8 +24,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:Controls="clr-namespace:GnomodiaUI.Controls;assembly=GnomodiaUI.Controls" mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300" Title="Gnomodia" UseLayoutRounding="True">
+             d:DesignHeight="300" d:DesignWidth="300" Title="Gnomodia Launcher" UseLayoutRounding="True">
     <Grid>
-        <Controls:GnomoriaLabel Text="Here goes the content!" />
+        <Controls:GnomoriaTabControl>
+            <Controls:GnomoriaTabItem Header="Mods">
+                <Controls:GnomoriaLabel Text="Here goes the content!"/>
+            </Controls:GnomoriaTabItem>
+            <Controls:GnomoriaTabItem Header="Logs" />
+            <Controls:GnomoriaTabItem Header="Settings" />
+        </Controls:GnomoriaTabControl>
     </Grid>
 </Controls:GnomoriaWindow>

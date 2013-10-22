@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="GnomodiaControls.cs" />
     <Compile Include="GnomoriaLabel.cs" />
+    <Compile Include="GnomoriaTabControl.cs" />
     <Compile Include="GnomoriaWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XnbUtilities.cs" />
