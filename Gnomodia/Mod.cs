@@ -18,7 +18,6 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,48 +29,6 @@ using Gnomodia.Utility;
 
 namespace Gnomodia
 {
-    public class ModDependency : ModType
-    {
-        public Version MinVersion { get; private set; }
-        public Version MaxVersion { get; private set; }
-        public ModDependency(string name, Version minVersion = null, Version maxVersion = null):base(name)
-        {
-            MinVersion = minVersion;
-            MaxVersion = maxVersion;
-        }
-        public ModDependency(IMod mod):base(mod)
-        {
-            MaxVersion = MinVersion = mod.GetType().Assembly.GetName().Version;
-        }
-        public static implicit operator ModDependency(Mod toCreateFrom)
-        {
-            return new ModDependency(toCreateFrom);
-        }
-    }
-    public interface IMod
-    {
-        String Name { get; }
-        String Description { get; }
-        String Author { get; }
-        Version Version { get; }
-
-        IEnumerable<IModification> Modifications { get; }
-        IEnumerable<ModDependency> Dependencies { get; }
-        IEnumerable<ModType> InitAfter { get; }
-        IEnumerable<ModType> InitBefore { get; }
-        String SetupData { get; set; }
-
-        void Initialize_PreGame();
-        void Initialize_ModDiscovery();
-        void Initialize_PreGeneration();
-
-        void PreWorldCreation(ModSaveData data, Game.Map map, Game.CreateWorldOptions options);
-        void PostWorldCreation(ModSaveData data, Game.Map map, Game.CreateWorldOptions options);
-        void PreGameLoaded(ModSaveData data);
-        void AfterGameLoaded(ModSaveData data);
-        void PreGameSaved(ModSaveData data);
-        void AfterGameSaved(ModSaveData data);
-    }
     public abstract class Mod : IMod
     {
         public virtual String Name
@@ -103,21 +60,9 @@ namespace Gnomodia
             }
         }
 
-        public virtual IEnumerable<IModification> Modifications
-        {
-            get
-            {
-                if (Hooks != null)
-                {
-                    return Hooks;
-                }
-                throw new NotImplementedException("You Mod has to overwrite Modifications.get!");
-            }
-        }
-
-        [Obsolete("Use IModification and Mod.Modifications instead of Mod.Hooks. Everything else should stay the same.")]
-        public virtual IMethodModification[] Hooks { get { return null; } }
-        public virtual IEnumerable<ModDependency> Dependencies
+        public abstract IEnumerable<IModification> Modifications { get; }
+    
+        /*public virtual IEnumerable<ModDependency> Dependencies
         {
             get
             {
@@ -154,7 +99,7 @@ namespace Gnomodia
         public virtual void PreGameLoaded(ModSaveData data) { }
         public virtual void AfterGameLoaded(ModSaveData data) { }
         public virtual void PreGameSaved(ModSaveData data) { }
-        public virtual void AfterGameSaved(ModSaveData data) { }
+        public virtual void AfterGameSaved(ModSaveData data) { }*/
     }
 
     public abstract class SupportMod : Mod { }

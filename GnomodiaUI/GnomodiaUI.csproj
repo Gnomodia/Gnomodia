@@ -59,10 +59,13 @@
     <Reference Include="Mono.Cecil.Rocks">
       <HintPath>3rdParty\Mono.Cecil.Rocks.dll</HintPath>
     </Reference>
+    <Reference Include="Ninject, Version=3.0.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -76,96 +79,18 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Form1.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
     <Compile Include="GameLauncher.cs" />
+    <Compile Include="GameModder.cs" />
     <Compile Include="Injector.cs" />
-    <Compile Include="Interface\GnomodiaLauncherWindow.xaml.cs">
-      <DependentUpon>GnomodiaLauncherWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Interface\ModUI.xaml.cs">
-      <DependentUpon>ModUI.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ModdingWriter.cs" />
-    <Compile Include="LocalModsFinder.cs" />
-    <Compile Include="Interface\ModUI_Settings.xaml.cs">
-      <DependentUpon>ModUI_Settings.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Interface\ModUI_Logs.xaml.cs">
-      <DependentUpon>ModUI_Logs.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Interface\ModUI_LocalMods.xaml.cs">
-      <DependentUpon>ModUI_LocalMods.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Interface\ModUI_LocalMods_ModItem.xaml.cs">
-      <DependentUpon>ModUI_LocalMods_ModItem.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\loader1.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Page Include="Interface\GnomodiaLauncherWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Interface\ModUI.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Interface\ModUI_Settings.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Interface\ModUI_Logs.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Interface\ModUI_LocalMods.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Interface\ModUI_LocalMods_ModItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\GE.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GnomodiaUI.Controls\GnomodiaUI.Controls.csproj">
-      <Project>{794B9653-EC66-439D-AC77-478C740A8C2E}</Project>
-      <Name>GnomodiaUI.Controls</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Gnomodia\Gnomodia.csproj">
       <Project>{665F54A4-0AF4-471C-9FF0-89D801BCDB9C}</Project>
       <Name>Gnomodia</Name>
@@ -178,7 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="3rdParty\ICSharpCode.SharpZipLib.dll" />
-    <Content Include="Images\Untitled.png" />
+    <Content Include="3rdParty\Ninject.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

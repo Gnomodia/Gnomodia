@@ -18,21 +18,26 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Game;
 using Game.GUI;
 using Game.GUI.Controls;
+using Gnomodia.Annotations;
+using Gnomodia.Attributes;
+using Gnomodia.Events;
 using Gnomodia.Utility;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using EventArgs = Game.GUI.Controls.EventArgs;
-using System;
 
 namespace Gnomodia.HelperMods
 {
+    [Export(typeof(IMod))]
     public class ModDialog : SupportMod
     {
         #region Setup stuff
@@ -50,19 +55,21 @@ namespace Gnomodia.HelperMods
                 return "Shows information about and lets you configure mods in-game";
             }
         }
+        public override Version Version
+        {
+            get { return typeof(ModDialog).Assembly.GetName().Version; }
+        }
         #endregion
+
+        [Instance]
+        private static ModDialog Instance { get; [UsedImplicitly] set; }
+
+        [Import]
+        private IModManager ModManager { get; set; }
 
         private static HUD s_Hud;
         private static Label s_GnomodiaVersionLabel;
         private static Label s_GnomoriaVersionLabel;
-
-        public static ModDialog Instance
-        {
-            get
-            {
-                return ModEnvironment.Mods.Get<ModDialog>();
-            }
-        }
 
         public override IEnumerable<IModification> Modifications
         {
@@ -74,6 +81,9 @@ namespace Gnomodia.HelperMods
                 yield return new MethodHook(
                     typeof(MainMenuWindow).GetConstructor(new[] { typeof(Manager) }),
                     Method.Of<MainMenuWindow, Manager>(AddMainMenuModButton));
+                yield return new MethodHook(
+                    typeof(MainMenuWindow).GetConstructor(new[] { typeof(Manager) }),
+                    Method.Of<MainMenuWindow, Manager>(SetGnomodiaLogo));
                 yield return new MethodHook(
                     typeof(MainMenuWindow).GetMethod("ceb32813158d52d65f7977184d5fc8c24", BindingFlags.Instance | BindingFlags.NonPublic),
                     Method.Of<MainMenuWindow, object, System.EventArgs>(Reset));
@@ -88,7 +98,7 @@ namespace Gnomodia.HelperMods
             Panel buttonPanel = (Panel)HudPanelField.GetValue(hud);
 
             Button helpButton;
-            if (!buttonPanel.FindControlRecursive(b => b.Text == "Help", out helpButton))
+            if (!buttonPanel.FindControlRecursive(out helpButton, b => b.Text == "Help"))
                 return;
 
             Button modsButton = new Button(buttonPanel.Manager);
@@ -114,7 +124,7 @@ namespace Gnomodia.HelperMods
             Panel buttonPanel = (Panel)MainMenuWindowPanelField.GetValue(mainMenu);
 
             Button exitButton;
-            if (!buttonPanel.FindControlRecursive(b => b.Text == "Exit", out exitButton))
+            if (!buttonPanel.FindControlRecursive(out exitButton, b => b.Text == "Exit"))
                 return;
 
             Button modsButton = new Button(manager);
@@ -130,7 +140,7 @@ namespace Gnomodia.HelperMods
 
             exitButton.Top = modsButton.Top + modsButton.Height + modsButton.Margins.Bottom + exitButton.Margins.Top;
 
-            if (!mainMenu.FindControlRecursive(l => l.Text.StartsWith("v"), out s_GnomoriaVersionLabel))
+            if (!mainMenu.FindControlRecursive(out s_GnomoriaVersionLabel, l => l.Text.StartsWith("v")))
                 return;
 
             s_GnomoriaVersionLabel.Text = "Gnomoria " + s_GnomoriaVersionLabel.Text;
@@ -142,6 +152,32 @@ namespace Gnomodia.HelperMods
             mainMenu.Add(s_GnomodiaVersionLabel);
 
             Reset(mainMenu, null, null);
+        }
+
+        public static void SetGnomodiaLogo(MainMenuWindow mainMenu, Manager manager)
+        {
+            Panel buttonPanel = (Panel)MainMenuWindowPanelField.GetValue(mainMenu);
+
+            ImageBox logo;
+            if (!buttonPanel.FindControlRecursive(out logo))
+                return;
+
+            Stream logoStream = typeof(ModDialog).Assembly.GetManifestResourceStream("Gnomodia.Images.Gnomodia.png");
+            Texture2D logoTexture = Texture2D.FromStream(GnomanEmpire.Instance.GraphicsDevice, logoStream);
+            logo.Image = logoTexture;
+
+            logo.SizeMode = SizeMode.Stretched;
+            logo.Width = logoTexture.Width * 3;
+            logo.Height = logoTexture.Height * 3;
+
+            logo.Left = (buttonPanel.Width - logo.Width) / 2;
+
+            Button[] buttons;
+            buttonPanel.FindControlsRecursive(out buttons, b => !string.IsNullOrEmpty(b.Text));
+            foreach (var button in buttons)
+            {
+                button.Top += 76;
+            }
         }
 
         public static void Reset(MainMenuWindow mainMenu, object sender, System.EventArgs eventArgs)
@@ -157,7 +193,7 @@ namespace Gnomodia.HelperMods
 
         private static void MainMenuModsButtonClick(object sender, EventArgs e)
         {
-            GnomanEmpire.Instance.GuiManager.MenuStack.PushWindow(new ModsMenu(GnomanEmpire.Instance.GuiManager.Manager));
+            GnomanEmpire.Instance.GuiManager.MenuStack.PushWindow(new ModsMenu(GnomanEmpire.Instance.GuiManager.Manager, Instance.ModManager));
         }
 
         private static void ModsButtonOnClick(object sender, EventArgs eventArgs)
@@ -167,17 +203,16 @@ namespace Gnomodia.HelperMods
             inGameHud.CloseWindow();
             if (isOtherWindow)
             {
-                inGameHud.ShowWindow(new ModDialogUI(s_Hud.Manager));
+                inGameHud.ShowWindow(new ModDialogUI(s_Hud.Manager, Instance.ModManager));
             }
         }
     }
 
     internal sealed class ModsMenu : Panel
     {
-        private readonly AboutModsPanel _aboutModsPanel;
         private readonly RaisedPanel _raisedPanel;
 
-        public ModsMenu(Manager manager)
+        public ModsMenu(Manager manager, IModManager modManager)
             : base(manager)
         {
             this.Init();
@@ -195,18 +230,18 @@ namespace Gnomodia.HelperMods
             _raisedPanel = new RaisedPanel(manager);
             _raisedPanel.Init();
             Add(_raisedPanel);
-            _aboutModsPanel = new AboutModsPanel(_raisedPanel);
+            AboutModsPanel aboutModsPanel = new AboutModsPanel(_raisedPanel, modManager);
 
             Button button = new Button(this.Manager);
             button.Init();
             button.Width = 100;
             button.Left = button.Margins.Left;
-            button.Top = _aboutModsPanel.ModListBox.Top + _aboutModsPanel.ModListBox.Height + _aboutModsPanel.ModListBox.Margins.Bottom + button.Margins.Top;
+            button.Top = aboutModsPanel.ModListBox.Top + aboutModsPanel.ModListBox.Height + aboutModsPanel.ModListBox.Margins.Bottom + button.Margins.Top;
             button.Text = "Back";
             button.Click += (sender, args) => GnomanEmpire.Instance.GuiManager.MenuStack.PopWindow();
             this._raisedPanel.Add(button);
 
-            this._raisedPanel.Width = _aboutModsPanel.ModInfoPanel.Left + _aboutModsPanel.ModInfoPanel.Width + this._raisedPanel.ClientMargins.Horizontal + _aboutModsPanel.ModListBox.Margins.Right;
+            this._raisedPanel.Width = aboutModsPanel.ModInfoPanel.Left + aboutModsPanel.ModInfoPanel.Width + this._raisedPanel.ClientMargins.Horizontal + aboutModsPanel.ModListBox.Margins.Right;
             this._raisedPanel.Height = button.Top + button.Height + button.Margins.Bottom + this._raisedPanel.ClientMargins.Vertical;
             SetPosition();
         }
@@ -224,7 +259,7 @@ namespace Gnomodia.HelperMods
         private static int s_Height = 500;
         private static Vector2 s_Position = new Vector2(-1f);
 
-        public ModDialogUI(Manager manager)
+        public ModDialogUI(Manager manager, IModManager modManager)
             : base(manager)
         {
             Text = "Mods";
@@ -239,7 +274,7 @@ namespace Gnomodia.HelperMods
                 s_Position.X = this.Left;
                 s_Position.Y = this.Top;
             }
-            AddPage("About", new GnomodiaPanelUI(this.Manager));
+            AddPage("About", new GnomodiaPanelUI(this.Manager, modManager));
             Width = s_Width;
             Height = s_Height;
             Left = (int)s_Position.X;
@@ -263,10 +298,11 @@ namespace Gnomodia.HelperMods
 
     internal class AboutModsPanel
     {
+        private readonly IModManager _modManager;
         internal LoweredPanel ModInfoPanel;
         internal ListBox ModListBox;
 
-        private readonly List<IMod> _mods;
+        //private IList<IMod> _mods;
 
         private readonly Label _titleLabel;
         private readonly Label _versionLabel;
@@ -287,7 +323,7 @@ namespace Gnomodia.HelperMods
             else
             {
                 int modIndex = ModListBox.ItemIndex - 1;
-                IMod mod = _mods[modIndex];
+                IMod mod = _modManager.Mods[modIndex];
 
                 _titleLabel.Text = mod.Name;
 
@@ -300,9 +336,9 @@ namespace Gnomodia.HelperMods
             _infoLabel.Height = _infoLabel.FullHeight;
         }
 
-        public AboutModsPanel(Panel containingPanel, int desiredHeight = 500, int desiredWidth = 750)
+        public AboutModsPanel(Panel containingPanel, IModManager modManager, int desiredHeight = 500, int desiredWidth = 750)
         {
-            _mods = ModEnvironment.Mods.Where(m => !(m is SupportMod)).ToList();
+            _modManager = modManager;
 
             ModListBox = new ListBox(containingPanel.Manager);
             ModListBox.Init();
@@ -315,7 +351,7 @@ namespace Gnomodia.HelperMods
             ModListBox.c81fb310624c15a101535d14adc9ec383.Add("Gnomodia");
             ModListBox.ItemIndexChanged += ModListBoxOnItemIndexChanged;
 
-            foreach (IMod mod in _mods)
+            foreach (IMod mod in modManager.Mods)
             {
                 ModListBox.c81fb310624c15a101535d14adc9ec383.Add(mod.Name);
             }
@@ -375,16 +411,19 @@ namespace Gnomodia.HelperMods
 
     internal class GnomodiaPanelUI : TabbedWindowPanel
     {
+        private readonly IModManager _modManager;
+        [UsedImplicitly]
         private AboutModsPanel _aboutModsPanel;
 
-        public GnomodiaPanelUI(Manager manager)
+        public GnomodiaPanelUI(Manager manager, IModManager modManager)
             : base(manager)
         {
+            _modManager = modManager;
         }
 
         public override void SetupPanel()
         {
-            _aboutModsPanel = new AboutModsPanel(this, this.Height, this.Width);
+            _aboutModsPanel = new AboutModsPanel(this, _modManager, this.Height, this.Width);
         }
     }
 }

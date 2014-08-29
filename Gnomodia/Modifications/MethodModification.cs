@@ -21,11 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
-using System.Runtime.Serialization;
-using System.Xml.Serialization;
-using Gnomodia.Utility;
 
 namespace Gnomodia
 {
@@ -51,11 +47,9 @@ namespace Gnomodia
         }
     }
 
-    [Obsolete("Use IModification and Mod.Modifications instead of Mod.Hooks. Everything else should stay the same.")]
     public interface IMethodModification : IModification
     {
     }
-
 
     public enum MethodHookType { RunBefore, RunAfter, Replace }
     [Flags]
@@ -69,10 +63,10 @@ namespace Gnomodia
     {
         public Type ParameterType { get; private set; }
         public bool IsOut { get; private set; }
-        public CustomParameterInfo(Type type, bool is_out = false)
+        public CustomParameterInfo(Type type, bool isOut = false)
         {
-            ParameterType = (is_out && !type.IsByRef) ? type.MakeByRefType() : type;
-            IsOut = is_out;
+            ParameterType = (isOut && !type.IsByRef) ? type.MakeByRefType() : type;
+            IsOut = isOut;
         }
 
         public bool IsSimpleType(Type t)
@@ -104,10 +98,7 @@ namespace Gnomodia
                     return false;
                 return a.ParameterType.GetElementType() == b.ParameterType.GetElementType();
             }
-            else
-            {
-                return a.ParameterType == b.ParameterType;
-            }
+            return a.ParameterType == b.ParameterType;
         }
         public bool IsSimilar(CustomParameterInfo trg)
         {
@@ -123,14 +114,14 @@ namespace Gnomodia
         }
         public static void VerifyNestedPublicMethod(MethodInfo method)
         {
-            var cur_type = method.DeclaringType;
-            while (cur_type != null)
+            var curType = method.DeclaringType;
+            while (curType != null)
             {
-                if (!cur_type.IsPublic && !(cur_type.IsNested && cur_type.IsNestedPublic))
+                if (!curType.IsPublic && !(curType.IsNested && curType.IsNestedPublic))
                 {
-                    throw new ArgumentException("One of the Types (" + cur_type.FullName + ") declaring the custom method (" + method.Name + ") is not public, makeing this method not accessible!");
+                    throw new ArgumentException("One of the Types (" + curType.FullName + ") declaring the custom method (" + method.Name + ") is not public, making this method inaccessible!");
                 }
-                cur_type = cur_type.DeclaringType;
+                curType = curType.DeclaringType;
             }
         }
         private static string MethodReferenceToString(MethodBase mref)
@@ -155,26 +146,22 @@ namespace Gnomodia
         {
             if ((InterceptedMethod == null) || (CustomMethod == null))
             {
-
                 if (InterceptedMethod == CustomMethod)
                 {
                     throw new ArgumentException("Custom and intercepted methods are null. Can't create a hook without them!");
                 }
-                else if (InterceptedMethod == null)
+                if (InterceptedMethod == null)
                 {
                     throw new ArgumentException("Intercepted method is null. Can't create a hook without! Custom method is [" + MethodReferenceToString(CustomMethod) + "]");
                 }
-                else
-                {
-                    throw new ArgumentException("Custom method is null. Can't create a hook without! Intercepted method is [" + MethodReferenceToString(InterceptedMethod) + "]");
-                }
+                throw new ArgumentException("Custom method is null. Can't create a hook without! Intercepted method is [" + MethodReferenceToString(InterceptedMethod) + "]");
             }
         }
         protected virtual void Validate_2_Accessibility()
         {
             if (!(CustomMethod.IsStatic && CustomMethod.IsPublic))
                 throw new ArgumentException("Custom method has to be public & static! " + CustomMethod.Name + " is not.");
-            if (UnmutableMethodModification.IsCompilerGenerated(CustomMethod))
+            if (IsCompilerGenerated(CustomMethod))
                 throw new ArgumentException("Custom method can not be compiler generated");
 
             VerifyNestedPublicMethod(CustomMethod);
@@ -223,14 +210,11 @@ namespace Gnomodia
             }
             if (!valid)
             {
-                Func<IEnumerable<CustomParameterInfo>, String> toString = (f) =>
-                {
-                    return f.Select(t => t == null ? "NULL" : ((t.IsOut ? "out " : (t.ParameterType.IsByRef ? "ref " : "")) + (t.ParameterType.IsByRef ? t.ParameterType.GetElementType() : t.ParameterType).FullName)).Aggregate((f1, f2) => f1 + ", " + f2);
-                };
+                Func<IEnumerable<CustomParameterInfo>, String> toString = f => f.Select(t => t == null ? "NULL" : ((t.IsOut ? "out " : (t.ParameterType.IsByRef ? "ref " : "")) + (t.ParameterType.IsByRef ? t.ParameterType.GetElementType() : t.ParameterType).FullName)).Aggregate((f1, f2) => f1 + ", " + f2);
                 throw new ArgumentException("Invalid parameter Layout for method [" + MethodReferenceToString(CustomMethod) + "]! Expected [" + toString(requredParameterLayout) + "], got [" + toString(foundParameterLayout.Select(el => (CustomParameterInfo)el)) + "].");
             }
         }
-        private void Validate_5_ReturnType_WrongReturnType(Type got, Type excpected, MethodBase func)
+        private static void Validate_5_ReturnType_WrongReturnType(Type got, Type excpected, MethodBase func)
         {
             throw new ArgumentException("Invalid return type! Got [" + got.FullName + "] while expecting [" + excpected.FullName + "] at func [" + MethodReferenceToString(func) + "]");
         }
@@ -247,10 +231,10 @@ namespace Gnomodia
             }
             else if ((HasResultAsFirstParameter || (HookType == MethodHookType.Replace)) && (InterceptedMethod is MethodInfo))
             {
-                var expected_type = (InterceptedMethod as MethodInfo).ReturnType;
-                if (expected_type != CustomMethod.ReturnType)
+                var expectedType = (InterceptedMethod as MethodInfo).ReturnType;
+                if (expectedType != CustomMethod.ReturnType)
                 {
-                    Validate_5_ReturnType_WrongReturnType(CustomMethod.ReturnType, expected_type, CustomMethod);
+                    Validate_5_ReturnType_WrongReturnType(CustomMethod.ReturnType, expectedType, CustomMethod);
                 }
             }
             else if (CustomMethod.ReturnType != typeof(void))
@@ -259,13 +243,18 @@ namespace Gnomodia
             }
         }
 
-        public UnmutableMethodModification(MethodBase intercepted, MethodInfo custom_method, MethodHookType hook_type = MethodHookType.RunAfter, MethodHookFlags hook_flags = MethodHookFlags.None)
+        protected UnmutableMethodModification(MethodBase intercepted, MethodInfo customMethod, MethodHookType hookType = MethodHookType.RunAfter, MethodHookFlags hookFlags = MethodHookFlags.None)
         {
-            HookType = hook_type;
+            HookType = hookType;
             InterceptedMethod = intercepted;
-            CustomMethod = custom_method;
-            HookFlags = hook_flags;
+            CustomMethod = customMethod;
+            HookFlags = hookFlags;
 
+            Validate();
+        }
+
+        private void Validate()
+        {
             Validate_1_NoInformationMissing();
             Validate_2_Accessibility();
             Validate_3_SpecialCases();

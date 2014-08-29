@@ -19,23 +19,25 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Game.GUI.Controls;
 
 namespace Gnomodia.Utility
 {
     public static class GnomoriaExtensions
     {
-        public static bool FindControlRecursive<T>(this Control containingControl, Predicate<T> controlPredicate, out T foundControl) where T : Control
+        public static bool FindControlRecursive<T>(this Control containingControl, out T foundControl, Predicate<T> controlPredicate = null) where T : Control
         {
-            if (containingControl is T && controlPredicate((T)containingControl))
+            if (containingControl is T && (controlPredicate == null || controlPredicate((T)containingControl)))
             {
-                foundControl = (T) containingControl;
+                foundControl = (T)containingControl;
                 return true;
             }
 
             foreach (var control in containingControl.ControlsList)
             {
-                if (control.FindControlRecursive(controlPredicate, out foundControl))
+                if (control.FindControlRecursive(out foundControl, controlPredicate))
                     return true;
             }
 
@@ -43,9 +45,28 @@ namespace Gnomodia.Utility
             return false;
         }
 
+        private static void FindControlsRecursive<T>(Control containingControl, Predicate<T> controlPredicate, ref List<T> foundControls) where T : Control
+        {
+            if (containingControl is T && (controlPredicate == null || controlPredicate((T)containingControl)))
+                foundControls.Add((T)containingControl);
+
+            foreach (var control in containingControl.ControlsList)
+            {
+                FindControlsRecursive(control, controlPredicate, ref foundControls);
+            }
+        }
+
+        public static bool FindControlsRecursive<T>(this Control containingControl, out T[] foundControls, Predicate<T> controlPredicate = null) where T : Control
+        {
+            List<T> controls = new List<T>();
+            FindControlsRecursive(containingControl, controlPredicate, ref controls);
+            foundControls= controls.ToArray();
+            return controls.Any();
+        }
+
         public static void CalculateWidth(this Label label)
         {
-            label.Width = (int) label.Skin.Layers[0].Text.Font.Resource.MeasureString(label.Text).X + 2;
+            label.Width = (int)label.Skin.Layers[0].Text.Font.Resource.MeasureString(label.Text).X + 2;
         }
     }
 }

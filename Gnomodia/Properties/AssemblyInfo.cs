@@ -60,9 +60,15 @@ using System.Runtime.InteropServices;
  * 
  * For complete information, please read http://semver.org/
  */
-
-[assembly: AssemblyVersion("0.1.0")]
-[assembly: AssemblyFileVersion("0.1.0")]
-[assembly: AssemblyInformationalVersion("0.1.0-alpha+0.9")]
+[assembly: AssemblyVersion(AssemblyResources.AssemblyBaseVersion)]
+[assembly: AssemblyFileVersion(AssemblyResources.AssemblyBaseVersion)]
+[assembly: AssemblyInformationalVersion(AssemblyResources.AssemblyBaseVersion + AssemblyResources.AssemblyPreReleaseVersion + "+" + AssemblyResources.GnomoriaTargetVersion)]
 
 [assembly: InternalsVisibleTo("GnomodiaUI")]
+
+internal static class AssemblyResources
+{
+    internal const string AssemblyBaseVersion = "0.1.0";
+    internal const string AssemblyPreReleaseVersion = "-alpha";
+    internal const string GnomoriaTargetVersion = "0.9.10";
+}

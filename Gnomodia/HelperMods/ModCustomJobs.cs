@@ -20,12 +20,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 using Game;
 using Game.GUI;
-using Gnomodia.Utility.Serialization;
+using Gnomodia.Annotations;
+using Gnomodia.Attributes;
+using Gnomodia.Events;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -33,34 +35,43 @@ namespace Gnomodia.HelperMods
 {
     public interface IModJob
     {
-        JobType ImpersonateJobType { get; }
+        JobTypeImpersonator JobTypeImpersonator { get; }
 
         bool CreateJobs(Rectangle jobArea, int level, Vector3 selectionStartPosition);
     }
 
-    public class ModCustomJobs : SupportMod
+    public abstract class ModJob : IModJob
     {
-        [DataContract]
-        private sealed class JobTypeRef
-        {
-            [DataMember]
-            public string DeclaringType { get; private set; }
+        public abstract JobTypeImpersonator JobTypeImpersonator { get; }
+        public abstract bool CreateJobs(Rectangle jobArea, int level, Vector3 selectionStartPosition);
+    }
 
-            private static string TypeToString(Type t)
-            {
-                return t.FullName + ", " + t.Assembly.GetName().Name;
-            }
-            public JobTypeRef(Type declaringType)
-            {
-                DeclaringType = TypeToString(declaringType);
-            }
-            private JobTypeRef() { }
-            public Type GetDeclaringType()
-            {
-                return Type.GetType(DeclaringType, true);
-            }
+    public class JobTypeImpersonator
+    {
+        public JobTypeImpersonator(JobType jobType)
+        {
+            ImpersonateJobType = jobType;
         }
 
+        public JobType ImpersonateJobType { get; private set; }
+    }
+
+    [MetadataAttribute]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    public class CustomJobAttribute : ExportAttribute
+    {
+        public CustomJobAttribute() : base(typeof(IModJob)) { }
+        public string JobName { get; set; }
+    }
+
+    public interface ICustomJobMetadata
+    {
+        string JobName { get; }
+    }
+
+    [Export(typeof(IMod))]
+    public class ModCustomJobs : SupportMod
+    {
         #region Setup stuff
         public override string Author
         {
@@ -76,40 +87,28 @@ namespace Gnomodia.HelperMods
                 return "Helper object that makes it easy for mods to create new jobs";
             }
         }
-        public override string SetupData
+        public override Version Version
         {
-            get
-            {
-                return SerializableDataBag.ToJson(_modJobTypes.Select(kvp => Tuple.Create(kvp.Key, new JobTypeRef(kvp.Value))));
-            }
-            set
-            {
-                _modJobTypes = SerializableDataBag
-                    .FromJson<JobTypeRef>(value)
-                    .ToDictionary<Type>(
-                        tref => tref.GetDeclaringType());
-            }
+            get { return typeof(ModCustomJobs).Assembly.GetName().Version; }
         }
         #endregion
 
-        private Dictionary<string, Type> _modJobTypes = new Dictionary<string, Type>();
+        //private readonly Dictionary<string, Type> _modJobTypes = new Dictionary<string, Type>();
+        [ImportMany(RequiredCreationPolicy = CreationPolicy.Shared), UsedImplicitly]
+        private IEnumerable<Lazy<IModJob, ICustomJobMetadata>> _modJobs;
 
-        public static ModCustomJobs Instance
-        {
-            get
-            {
-                return ModEnvironment.Mods.Get<ModCustomJobs>();
-            }
-        }
+        [Instance]
+        private static ModCustomJobs Instance { get; [UsedImplicitly] set; }
+
         public ModCustomJobs()
         {
-            ModEnvironment.ResetSetupData += (sender, args) => _modJobTypes.Clear();
+            //ModEnvironment.ResetSetupData += (sender, args) => _modJobTypes.Clear();
         }
 
-        public static void AddJob<T>(string jobName) where T : IModJob, new()
+        /*public static void AddJob<T>(string jobName) where T : IModJob, new()
         {
             Instance.AddJob(jobName, typeof(T));
-        }
+        }*/
 
         public static JobType GetJobType(string jobName)
         {
@@ -121,10 +120,10 @@ namespace Gnomodia.HelperMods
             return _customJobTypes[jobName];
         }
 
-        private void AddJob(string jobName, Type type)
+        /*private void AddJob(string jobName, Type type)
         {
             _modJobTypes.Add(jobName, type);
-        }
+        }*/
 
         public override IEnumerable<IModification> Modifications
         {
@@ -156,20 +155,20 @@ namespace Gnomodia.HelperMods
             ModCustomJobs mcj = Instance;
 
             JobType jobType = (JobType)JobTypeField.GetValue(tsm);
-            if (jobType > mcj._maxJobType)
-            {
-                s_OriginalJobType = jobType;
-                JobTypeField.SetValue(tsm, mcj._customJobs[jobType].ImpersonateJobType);
-            }
+            if (jobType <= mcj._maxJobType)
+                return;
+
+            s_OriginalJobType = jobType;
+            JobTypeField.SetValue(tsm, mcj._customJobs[jobType].JobTypeImpersonator.ImpersonateJobType);
         }
 
         public static void OnAfterDraw(TileSelectionManager tsm, SpriteBatch sb)
         {
-            if (s_OriginalJobType != JobType.Invalid)
-            {
-                JobTypeField.SetValue(tsm, s_OriginalJobType);
-                s_OriginalJobType = JobType.Invalid;
-            }
+            if (s_OriginalJobType == JobType.Invalid)
+                return;
+
+            JobTypeField.SetValue(tsm, s_OriginalJobType);
+            s_OriginalJobType = JobType.Invalid;
         }
 
         private static readonly FieldInfo JobStartPosition = typeof(TileSelectionManager).GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
@@ -212,15 +211,17 @@ namespace Gnomodia.HelperMods
         private readonly Dictionary<JobType, IModJob> _customJobs = new Dictionary<JobType, IModJob>();
 
         private JobType _maxJobType;
-        public override void Initialize_PreGame()
+
+        [EventListener]
+        public void Initialize(object sender, PregameInitializeEventArgs eventArgs)
         {
             _maxJobType = Enum.GetValues(typeof(JobType)).OfType<JobType>().Max();
 
             JobType customJobType = _maxJobType;
-            foreach (var modJob in _modJobTypes.Keys)
+            foreach (var modJob in _modJobs.Where(modJob => modJob.Value != null))
             {
-                _customJobTypes.Add(modJob, ++customJobType);
-                IModJob modJobInstance = (IModJob)Activator.CreateInstance(_modJobTypes[modJob]);
+                _customJobTypes.Add(modJob.Metadata.JobName, ++customJobType);
+                IModJob modJobInstance = modJob.Value;
                 _customJobs.Add(customJobType, modJobInstance);
             }
         }

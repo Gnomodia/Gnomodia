@@ -25,16 +25,7 @@ namespace alexschrod.MiningImprovements
         {
             get
             {
-                return typeof(MiningImprovements).Assembly.GetName().Version;
-            }
-        }
-
-        public override IEnumerable<ModDependency> Dependencies
-        {
-            get
-            {
-                yield return Gnomodia.HelperMods.ModRightClickMenu.Instance;
-                yield return Gnomodia.HelperMods.ModCustomJobs.Instance;
+                return GetType().Assembly.GetName().Version;
             }
         }
     }

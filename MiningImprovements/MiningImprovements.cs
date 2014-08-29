@@ -1,21 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
 using Game;
 using Game.GUI;
 using GameLibrary;
 using Gnomodia;
+using Gnomodia.Annotations;
+using Gnomodia.Attributes;
+using Gnomodia.Events;
 using Gnomodia.HelperMods;
 using Microsoft.Xna.Framework;
 
 namespace alexschrod.MiningImprovements
 {
+    [CustomJob(JobName = "QuickMine")]
     public class QuickMineJob : IModJob
     {
-        public JobType ImpersonateJobType
+        public JobTypeImpersonator JobTypeImpersonator
         {
-            get { return JobType.Mine; }
+            get { return new JobTypeImpersonator(JobType.Mine); }
         }
 
         public bool CreateJobs(Rectangle jobArea, int level, Vector3 selectionStartPosition)
@@ -77,11 +82,12 @@ namespace alexschrod.MiningImprovements
         }
     }
 
+    [CustomJob(JobName = "SafeTorches")]
     public class SafeTorchesJob : IModJob
     {
-        public JobType ImpersonateJobType
+        public JobTypeImpersonator JobTypeImpersonator
         {
-            get { return JobType.Deconstruct; }
+            get { return new JobTypeImpersonator(JobType.Deconstruct); }
         }
 
         public bool CreateJobs(Rectangle jobArea, int level, Vector3 selectionStartPosition)
@@ -94,7 +100,7 @@ namespace alexschrod.MiningImprovements
             int mapWidth = map.MapWidth;
             int mapHeight = map.MapHeight;
 
-            int startX = (int) selectionStartPosition.X;
+            int startX = (int)selectionStartPosition.X;
             int startY = (int)selectionStartPosition.Y;
 
             for (int x = startX; x < mapHeight; x += MiningImprovements.SafeTorchDistance)
@@ -134,11 +140,11 @@ namespace alexschrod.MiningImprovements
                 return;
             }
 
-            int stepsX = deltaX/(MiningImprovements.SafeTorchDistance);
-            int stepsY = deltaY/(MiningImprovements.SafeTorchDistance);
+            int stepsX = deltaX / (MiningImprovements.SafeTorchDistance);
+            int stepsY = deltaY / (MiningImprovements.SafeTorchDistance);
 
-            bool evenX = stepsX%2 == 0;
-            bool evenY = stepsY%2 == 0;
+            bool evenX = stepsX % 2 == 0;
+            bool evenY = stepsY % 2 == 0;
 
             if (evenX != evenY)
             {
@@ -156,6 +162,7 @@ namespace alexschrod.MiningImprovements
         }
     }
 
+    [Export(typeof(IMod))]
     public partial class MiningImprovements : Mod
     {
         public const int SafeTorchDistance = 11;
@@ -163,17 +170,16 @@ namespace alexschrod.MiningImprovements
         private static JobType s_QuickMineJobType;
         private static JobType s_SafeTorchesJobType;
 
-        public override void Initialize_PreGeneration()
-        {
-            ModRightClickMenu.AddItem("Quick mine", QuickMine);
-            ModRightClickMenu.AddItem("Strip mine entire level", StripMineLevel);
-            ModRightClickMenu.AddItem("Keep only required torches", KeepRequiredTorches);
-            ModCustomJobs.AddJob<QuickMineJob>("QuickMine");
-            ModCustomJobs.AddJob<SafeTorchesJob>("SafeTorches");
-        }
+        [Instance, UsedImplicitly]
+        private ModRightClickMenu _rightClickMenu;
 
-        public override void Initialize_PreGame()
+        [EventListener]
+        public void Initialize(object sender, PregameInitializeEventArgs eventArgs)
         {
+            _rightClickMenu.AddButton("Quick mine", QuickMine);
+            _rightClickMenu.AddButton("Strip mine entire level", StripMineLevel);
+            _rightClickMenu.AddButton("Keep only required torches", KeepRequiredTorches);
+
             s_QuickMineJobType = ModCustomJobs.GetJobType("QuickMine");
             s_SafeTorchesJobType = ModCustomJobs.GetJobType("SafeTorches");
         }

@@ -47,15 +47,18 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Gnomoria">
-      <HintPath>E:\Games\Steam\steamapps\common\Gnomoria\Gnomoria.exe</HintPath>
+    <Reference Include="Gnomoria, Version=0.9.10.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Gnomoria\Gnomoria.exe</HintPath>
     </Reference>
-    <Reference Include="gnomorialib">
-      <HintPath>E:\Games\Steam\steamapps\common\Gnomoria\gnomorialib.dll</HintPath>
+    <Reference Include="gnomorialib, Version=0.9.10.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Gnomoria\gnomorialib.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -70,7 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gnomodia\Gnomodia.csproj">
-      <Project>{665F54A4-0AF4-471C-9FF0-89D801BCDB9C}</Project>
+      <Project>{665f54a4-0af4-471c-9ff0-89d801bcdb9c}</Project>
       <Name>Gnomodia</Name>
     </ProjectReference>
   </ItemGroup>

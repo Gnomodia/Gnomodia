@@ -19,12 +19,16 @@
  */
 
 using System;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using Gnomodia;
 using Gnomodia.Properties;
+using Gnomodia.Utility;
 using GnomoriaModUI;
 using Microsoft.Win32;
 
@@ -32,13 +36,13 @@ namespace GnomodiaUI
 {
     static class Program
     {
-        private static bool s_ApplicationSettingsEnabled;
+        internal static CompositionContainer Container;
 
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main(string[] args)
+        static void Main()
         {
 #if DEBUG
             // This helps us re-attach the debugger to the application on a restart
@@ -53,41 +57,48 @@ namespace GnomodiaUI
             if (!VerifyOrConfigureGnomoriaInstallationPath())
                 return;
 
-            // Todo: Offer a "just build [now], do not start" mode
-            var buildAndQuit = false;
-            foreach (var arg in args)
+            // Custom assembly resolving
+            AppDomain.CurrentDomain.AssemblyResolve += (s, e) =>
             {
-                switch (arg.ToUpper())
+                var trgName = new AssemblyName(e.Name);
+                if (trgName.Name == "Gnomoria")
+                    return Assembly.Load(File.ReadAllBytes(Reference.GameDirectory.GetFile(Reference.OriginalExecutable).FullName));
+                if (trgName.Name == "gnomorialib")
+                    return Assembly.Load(File.ReadAllBytes(Reference.GameDirectory.GetFile(Reference.OriginalLibrary).FullName));
+                return null;
+            };
+
+            // Set up composition
+            InitializeCompositionContainer();
+
+            // Mod game
+            GameModder gameModder = new GameModder();
+            try
+            {
+                Container.ComposeParts(gameModder);
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                var exes = e.LoaderExceptions;
+                foreach (var ex in exes)
                 {
-                    case "-LAUNCH":
-                        GameLauncher.Run();
-                        return;
-                    case "-BUILD":
-                        buildAndQuit = true;
-                        //todo: actually implement this
-                        break;
+                    Trace.WriteLine(ex);
                 }
             }
+            gameModder.ModifyGnomoria();
 
-            switch (2)
-            {
-                case 0:
-                    App.Main();
-                    break;
-                case 1:
-                    //Application.EnableVisualStyles();
-                    //Application.SetCompatibleTextRenderingDefault(false);
-                    //Application.Run(new NewUI());
-                    break;
-                case 2:
-                    if (!s_ApplicationSettingsEnabled)
-                    {
-                        Application.EnableVisualStyles();
-                        Application.SetCompatibleTextRenderingDefault(false);
-                    }
-                    Application.Run(new Form1());
-                    break;
-            }
+            // Launch game
+            GameLauncher.Run();
+        }
+
+        private static void InitializeCompositionContainer()
+        {
+            var catalog = new AggregateCatalog();
+            catalog.Catalogs.Add(new AssemblyCatalog(typeof(Program).Assembly));
+            catalog.Catalogs.Add(new AssemblyCatalog(typeof(IMod).Assembly));
+            catalog.Catalogs.Add(new DirectoryCatalog("Mods"));
+
+            Container = new CompositionContainer(catalog);
         }
 
         private static bool VerifyOrConfigureGnomoriaInstallationPath()
@@ -108,6 +119,8 @@ namespace GnomodiaUI
                 }
             }
 
+            // TODO: Automatically get installation paths from other sources, if possible (Desura?)
+
             if (GetManualInstallationPath(out installationPath))
             {
                 gnomoriaPath = Path.Combine(installationPath, Reference.OriginalExecutable);
@@ -127,10 +140,8 @@ namespace GnomodiaUI
             string gnomoriaPath = "";
             installationPath = null;
             {
-                // TODO: Remove when switching from Forms to WPF
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                s_ApplicationSettingsEnabled = true;
             }
             while (!File.Exists(gnomoriaPath))
             {

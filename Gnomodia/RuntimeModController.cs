@@ -20,161 +20,109 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Reflection;
-using System.Runtime.Serialization;
-using System.Xml.Serialization;
+using Gnomodia.Events;
 using Gnomodia.Utility;
 
 namespace Gnomodia
 {   
-
-
-    public static class RuntimeModController
+    public class RuntimeModController
     {
+        private static RuntimeModController Instance { get; set; }
 
-        private static List<IMod> active_mods;
-        private static ModSaveFile modSaveFile;
+        [Import]
+        private IModManager ModManager { get; set; }
+
+        private static void InitializeCompositionContainer()
+        {
+            var catalog = new AggregateCatalog();
+            catalog.Catalogs.Add(new AssemblyCatalog(typeof(IMod).Assembly));
+            catalog.Catalogs.Add(new DirectoryCatalog(Path.Combine(Path.GetDirectoryName(typeof(IMod).Assembly.Location), "Mods")));
+
+            Container = new CompositionContainer(catalog);
+        }
+
+        private static CompositionContainer Container { get; set; }
+
         public static void Initialize(string[] args)
         {
-            ModEnvironment.Status = ModEnvironment.EnvironmentStatus.InGame;
-            //System.Diagnostics.Debugger.Break();
-            //System.Diagnostics.Debug.Assert(false);
+            InitializeCompositionContainer();
+            Instance = new RuntimeModController();
+            Container.ComposeParts(Instance);
+            Instance.InitializeMods();
+        }
 
-            Log.WriteText(
-                Environment.NewLine
-                + "________________________________________________" + Environment.NewLine
-                + "Gnomoria with mod support startet." + Environment.NewLine
-                + "Game version: " + typeof(Game.GnomanEmpire).Assembly.GetName().Version + Environment.NewLine
-                + Environment.NewLine,
-                Log.LogLevel.Normal,
-                Log.TargetModes.File
-                );
-
-            //AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-
-            var loadAssemblys = !args.Contains("-noassemblyloading");
+        private void InitializeMods()
+        {
             try
             {
-                active_mods = new List<IMod>();
-                var loaded_modfiles = new List<string>();
-                var config = ModEnvironmentConfiguration.Load(new System.IO.FileInfo(Path.Combine(Reference.GnomodiaDirectory.FullName, Reference.ConfigurationFileName)));
-                foreach (var modRef in config.ModReferences)
-                {
-                    if (!loaded_modfiles.Contains(modRef.AssemblyFile.FullName))
-                    {
-                        if (loadAssemblys)
-                        {
-                            Assembly.LoadFrom(modRef.AssemblyFile.FullName);
-                        }
-                        else
-                        {
-                            Type.GetType(modRef.TypeName);
-                        }
-                        loaded_modfiles.Add(modRef.AssemblyFile.FullName);
-                    }
-                }
-                foreach (var modRef in config.ModReferences)
-                {
-                    var mod = ModEnvironment.Mods[modRef];
-                    if (modRef.SetupData != null)
-                    {
-                        mod.SetupData = modRef.SetupData;
-                    }
-                    mod.Initialize_PreGame();
-                    active_mods.Add(mod);
-                }
+                ModManager.OnPregameInitializeEvent(new PregameInitializeEventArgs());
             }
             catch (Exception err)
             {
-                Log.Write(err);
+                // TODO: Log properly
+                //Log.Write(err);
                 throw;
-            }
-
-
-            //System.IO.File.WriteAllLines("c:\\programme\\gnomoria\\modding.xml", new string[] { "IT", "DOES", "FUCKING", "WORK", "", ":D" });
-
-            //throw new Exception("injecting mod-init successful");
-            /*
-            RuntimeModsConfig modsConfig;
-            var serializer = new System.Xml.Serialization.XmlSerializer(typeof(RuntimeModsConfig));
-            using (var fstream = System.IO.File.OpenRead("ModRuntimeData.xml"))
-            {
-                modsConfig = (RuntimeModsConfig)serializer.Deserialize(fstream);
-                fstream.Close();
-            }
-            */
-            //LoadMod(new DemoMod().GetConfig());
-        }
-        public static IEnumerable<IMod> ActiveMods
-        {
-            get
-            {
-                return active_mods;
             }
         }
 
         public static void PreSaveHook(Game.GnomanEmpire self, bool fallenKingdom)
         {
-            foreach (var mod in active_mods)
+            foreach (var mod in Instance.ModManager.Mods)
             {
-                mod.PreGameSaved(modSaveFile.GetDataFor(mod));
+                //mod.PreGameSaved(modSaveFile.GetDataFor(mod));
             }
         }
         public static System.Threading.Tasks.Task PostSaveHook(System.Threading.Tasks.Task saveTask, Game.GnomanEmpire self, bool fallenKingdom)
         {
             return saveTask.ContinueWith((task) =>
             {
-                foreach (var mod in active_mods)
+                foreach (var mod in Instance.ModManager.Mods)
                 {
-                    mod.AfterGameSaved(modSaveFile.GetDataFor(mod));
+                    //mod.AfterGameSaved(modSaveFile.GetDataFor(mod));
                 }
                 var path = fallenKingdom ? Game.GnomanEmpire.SaveFolderPath("OldWorlds\\") : Game.GnomanEmpire.SaveFolderPath("Worlds\\");
                 // Todo: fallen kingdoms not considered with filename and so on!
                 var file = System.IO.Path.Combine(path, self.CurrentWorld + ".msv");
-                modSaveFile.SaveTo(new System.IO.FileInfo(file));
+                //modSaveFile.SaveTo(new System.IO.FileInfo(file));
             });
         }
         public static void PreLoadHook(Game.GnomanEmpire self, string fileName, bool fallenKingdom)
         {
             var dir = fallenKingdom ? Game.GnomanEmpire.SaveFolderPath("OldWorlds\\") : Game.GnomanEmpire.SaveFolderPath("Worlds\\");
             var file = System.IO.Path.Combine(dir, fileName + ".msv");
-            modSaveFile = ModSaveFile.LoadFrom(new System.IO.FileInfo(file));
-            foreach (var mod in active_mods)
+            //modSaveFile = ModSaveFile.LoadFrom(new System.IO.FileInfo(file));
+            foreach (var mod in Instance.ModManager.Mods)
             {
-                mod.PreGameLoaded(modSaveFile.GetDataFor(mod));
+                //mod.PreGameLoaded(modSaveFile.GetDataFor(mod));
             }
         }
         public static void PostLoadHook(Game.GnomanEmpire self, string fileName, bool fallenKingdom)
         {
-            foreach (var mod in active_mods)
+            foreach (var mod in Instance.ModManager.Mods)
             {
-                mod.AfterGameLoaded(modSaveFile.GetDataFor(mod));
+                //mod.AfterGameLoaded(modSaveFile.GetDataFor(mod));
             }
         }
         public static void PreCreateHook(Game.Map self, Game.CreateWorldOptions options)
         {
-            modSaveFile = new ModSaveFile();
-            foreach (var mod in active_mods)
+            //modSaveFile = new ModSaveFile();
+            foreach (var mod in Instance.ModManager.Mods)
             {
-                mod.PreWorldCreation(modSaveFile.GetDataFor(mod), self, options);
+                //mod.PreWorldCreation(modSaveFile.GetDataFor(mod), self, options);
             }
         }
         public static void PostCreateHook(Game.Map self, Game.CreateWorldOptions options)
         {
-            foreach (var mod in active_mods)
+            foreach (var mod in Instance.ModManager.Mods)
             {
-                mod.PostWorldCreation(modSaveFile.GetDataFor(mod), self, options);
+                //mod.PostWorldCreation(modSaveFile.GetDataFor(mod), self, options);
             }
         }
-
-        public static Game.GnomanEmpire Debug_GetEmpire()
-        {
-            return Game.GnomanEmpire.Instance;
-        }
-
 
         public static class Log
         {
@@ -299,12 +247,12 @@ namespace Gnomodia
                 }
             }
 
-            public static void Write(IEnumerable<String> lines, LogLevel level = LogLevel.Normal, TargetModes target = TargetModes.UseGlobalSetting )
+            public static void Write(IEnumerable<String> lines, LogLevel level = LogLevel.Normal, TargetModes target = TargetModes.UseGlobalSetting)
             {
                 DoWrite(
-                    "Date: " + DateTime.Now.ToString() 
+                    "Date: " + DateTime.Now.ToString()
                     + Environment.NewLine
-                    + String.Join(Environment.NewLine, lines) 
+                    + String.Join(Environment.NewLine, lines)
                     + Environment.NewLine
                     + Environment.NewLine,
                     level,
@@ -336,7 +284,7 @@ namespace Gnomodia
                 {
                     try
                     {
-                        errText = "Failed to retrieve error message: "+toTextEx.ToString();
+                        errText = "Failed to retrieve error message: " + toTextEx.ToString();
                     }
                     catch (Exception)
                     {

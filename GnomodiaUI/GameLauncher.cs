@@ -19,10 +19,10 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using Gnomodia;
 using Gnomodia.Properties;
-using GnomodiaUI.Properties;
 
 namespace GnomoriaModUI
 {
@@ -51,6 +51,7 @@ namespace GnomoriaModUI
                 var ep = ass.EntryPoint;
                 //var inst = ass.GetType("Game.GnomanEmpire").GetProperty("Instance").GetGetMethod().Invoke(null, new object[] { });
                 //var obj = ass.CreateInstance(ep.Name);
+                Directory.SetCurrentDirectory(Reference.GameDirectory.FullName);
                 ep.Invoke(null, new object[] { new[] { "-noassemblyresolve", "-noassemblyloading" } });
             }
             catch (Exception err)
@@ -62,6 +63,7 @@ namespace GnomoriaModUI
         private Exception _lastFirstChanceException;
         void CurrentDomain_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
         {
+            Trace.WriteLine(e.Exception);
             handleStuff_Enter();
             if (!(e.Exception is System.Threading.ThreadAbortException))
             {
@@ -72,6 +74,7 @@ namespace GnomoriaModUI
         }
         void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
+            Trace.WriteLine(e.ExceptionObject);
             handleStuff_Enter();
             if (e.ExceptionObject == _lastFirstChanceException)
             {
@@ -100,7 +103,7 @@ namespace GnomoriaModUI
             _isCurrentlyHandlingSth = false;
         }
 
-        static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        internal static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
             var asses = AppDomain.CurrentDomain.GetAssemblies();
             var trgName = new System.Reflection.AssemblyName(args.Name);

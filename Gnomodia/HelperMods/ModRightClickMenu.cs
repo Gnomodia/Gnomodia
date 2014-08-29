@@ -20,70 +20,27 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
-using System.Text;
-using System.Dynamic;
 using System.Reflection;
-using System.Runtime.Serialization;
-using Gnomodia.Utility;
-using Gnomodia.Utility.Serialization;
-
-using Game;
-using GameLibrary;
-using Microsoft.Xna.Framework;
+using Game.GUI;
+using Game.GUI.Controls;
+using Gnomodia.Annotations;
+using Gnomodia.Attributes;
+using Gnomodia.Events;
 
 namespace Gnomodia.HelperMods
 {
-    public class ModRightClickMenu: SupportMod
+    [Export(typeof(IMod))]
+    public class ModRightClickMenu : SupportMod
     {
-        [DataContract]
-        private sealed class MethodRef
-        {
-            [DataMember]
-            public string Method { get; private set; }
-            [DataMember]
-            public string DeclaringType { get; private set; }
-            [DataMember]
-            public IEnumerable<string> ParameterTypes { get; private set; }
-
-            private static string typeToString(Type t)
-            {
-                return t.FullName + ", " + t.Assembly.GetName().Name;
-            }
-            public MethodRef(MethodInfo method)
-            {
-                Method = method.Name;
-                ParameterTypes = method.GetParameters().Select(para => typeToString(para.ParameterType));
-                DeclaringType = typeToString(method.DeclaringType);
-            }
-            private MethodRef() { }
-            public MethodInfo GetMethod()
-            {
-                var declaringType = Type.GetType(DeclaringType, true);
-                return declaringType.GetMethod(Method, ParameterTypes.Select(typeText => Type.GetType(typeText, true)).ToArray());
-            }
-        }
         #region public stuff
-        private Dictionary<String, ModMenuItemClickedCallback> ModMenuItems = new Dictionary<string,ModMenuItemClickedCallback>();
-        public static ModRightClickMenu Instance
-        {
-            get
-            {
-                return ModEnvironment.Mods.Get<ModRightClickMenu>();
-            }
-        }
-        public ModRightClickMenu()
-        {
-            ModEnvironment.ResetSetupData += new EventHandler((sender, args) =>
-            {
-                ModMenuItems.Clear();
-            });
-        }
+        private readonly Dictionary<String, ModMenuItemClickedCallback> _modMenuItems = new Dictionary<string, ModMenuItemClickedCallback>();
+
+        [Instance]
+        private static ModRightClickMenu Instance { get; [UsedImplicitly] set; }
+
         public delegate void ModMenuItemClickedCallback();
-        public static void AddItem(string text, ModMenuItemClickedCallback callback)
-        {
-            Instance.AddButton(text, callback);
-        }
         #endregion
         #region Setup stuff
         public override string Author
@@ -97,103 +54,70 @@ namespace Gnomodia.HelperMods
         {
             get
             {
-                return "Helper object, that makes it easy for other mods to create items in the right click menu under \"Mods\"";
+                return "Helper object that makes it easy for other mods to place items in the right click menu under a \"Mods\" menu";
             }
         }
-        public override string SetupData
+        public override Version Version
         {
-            get
-            {
-                //return SerializableDataBag.ToJSON(ModMenuItems.Select(kvp => Tuple.Create(kvp.Key, kvp.Value.Method)));
-                //return SerializableDataBag.ToJSON(ModMenuItems);
-                return SerializableDataBag.ToJson(ModMenuItems.Select(kvp => Tuple.Create(kvp.Key, new MethodRef(kvp.Value.Method))));
-            }
-            set
-            {
-                ModMenuItems = SerializableDataBag
-                    .FromJson<MethodRef>(value)
-                    .ToDictionary<ModMenuItemClickedCallback>(
-                        mref => (ModMenuItemClickedCallback)Delegate.CreateDelegate(typeof(ModMenuItemClickedCallback), mref.GetMethod())
-                        );
-            }
+            get { return typeof(ModRightClickMenu).Assembly.GetName().Version; }
         }
         #endregion
 
         public void AddButton(string text, ModMenuItemClickedCallback callback)
         {
-            if (ModEnvironment.Status != ModEnvironment.EnvironmentStatus.InGame)
+            if (_modMenuItems == null)
             {
-                if (!(callback.Method.IsStatic && callback.Method.IsPublic))
-                    throw new ArgumentException("Click callback has to be public & static! " + callback.Method.Name + " is not.");
-                if (UnmutableMethodModification.IsCompilerGenerated(callback.Method))
-                    throw new ArgumentException("Click callback can not be compiler generated");
-                UnmutableMethodModification.VerifyNestedPublicMethod(callback.Method);
+                throw new InvalidOperationException("Looks like you are too late, menu already created...");
             }
-            if (ModMenuItems == null)
-            {
-                throw new InvalidOperationException("Looks like you are to late, menu already created...");
-            }else{
-                ModMenuItems.Add(text, callback);
-            }
+
+            if (!(callback.Method.IsStatic && callback.Method.IsPublic))
+                throw new ArgumentException("Click callback has to be public & static! " + callback.Method.Name + " is not.");
+            if (UnmutableMethodModification.IsCompilerGenerated(callback.Method))
+                throw new ArgumentException("Click callback cannot be compiler generated");
+            UnmutableMethodModification.VerifyNestedPublicMethod(callback.Method);
+
+            _modMenuItems.Add(text, callback);
         }
 
         public override IEnumerable<IModification> Modifications
         {
             get
             {
-
                 yield return new MethodHook(
-                    typeof(Game.GUI.RightClickMenu).GetConstructor(new Type[] { }),
-                    Method.Of<Game.GUI.RightClickMenu>(On_RightClickMenu_Created)
-                    );
+                    typeof(RightClickMenu).GetConstructor(new Type[] { }),
+                    Method.Of<RightClickMenu>(OnRightClickMenuCreated)
+                );
             }
         }
-        private static FieldInfo RightClickMenu_ContextMenu;
-        public override void Initialize_PreGame()
-        {
-            if ((ModMenuItems == null) )//|| (ModMenuItems.Count == 0))
-            {
-                throw new InvalidOperationException("Trying to initialize ModRightClickMenu without data.");
-            }
-            RightClickMenu_ContextMenu = typeof(Game.GUI.RightClickMenu)
-                .GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
-                .Single(field => field.FieldType == typeof(Game.GUI.Controls.ContextMenu));
-        }
-        public static void On_RightClickMenu_Created(Game.GUI.RightClickMenu self)
-        {
-            /*
-            var ih = typeof(Game.HistoryManager).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Single(f => f.FieldType == typeof(Dictionary<uint, ItemHistory>));
-            var list = (Dictionary<uint, ItemHistory>)ih.GetValue(GnomanEmpire.Instance.Fortress.HistoryManager);
+        private static FieldInfo s_RightClickMenuContextMenu;
 
-            var part = list.Where(el => el.Value.Components.Count > 0).ToList();
-            var part2 = part.Where(el => el.Value.Components.Any(el2 => el2.History.Components.Count > 0)).ToList();
-            var part3 = part2.Where(el => el.Value.Components.Any(el2 => el2.History.Components.Any(el3 => el3.History.Components.Count > 0))).ToList();
-            var part4 = part3.Where(el => el.Value.Components.Any(el2 => el2.History.Components.Any(el3 => el3.History.Components.Any(el4 => el4.History.Components.Count > 0)))).ToList();
-            var part5 = part4.Where(el => el.Value.Components.Any(el2 => el2.History.Components.Any(el3 => el3.History.Components.Any(el4 => el4.History.Components.Any(el5 => el5.History.Components.Count > 0))))).ToList();
-            var part6 = part5.Where(el => el.Value.Components.Any(el2 => el2.History.Components.Any(el3 => el3.History.Components.Any(el4 => el4.History.Components.Any(el5 => el5.History.Components.Any(el6 => el6.History.Components.Count > 0)))))).ToList();
-            part6.ToString();
-            var sh = list.Where(el => el.Value.ItemID == ItemID.SkullHelmet).ToList();
-            sh.ToString();
-            */
-            var context_menu = (Game.GUI.Controls.ContextMenu)(RightClickMenu_ContextMenu.GetValue(self));
-            var modsGroup = new Game.GUI.Controls.MenuItem("Mods");
-            foreach (var mod_kvp in Instance.ModMenuItems)
+        [EventListener]
+        public void InitializeRightClickMenu(object sender, PregameInitializeEventArgs eventArgs)
+        {
+            s_RightClickMenuContextMenu = typeof(RightClickMenu)
+                .GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
+                .Single(field => field.FieldType == typeof(ContextMenu));
+        }
+
+        public static void OnRightClickMenuCreated(RightClickMenu rightClickMenu)
+        {
+            var contextMenu = (ContextMenu)(s_RightClickMenuContextMenu.GetValue(rightClickMenu));
+            var modsGroup = new MenuItem("Mods");
+            foreach (var modMenuItem in Instance._modMenuItems)
             {
-                addMenuItem(mod_kvp, modsGroup);
+                AddMenuItem(modMenuItem, modsGroup);
             }
-            if (!Instance.ModMenuItems.Any())
+            if (!Instance._modMenuItems.Any())
             {
                 modsGroup.Enabled = false;
             }
-            context_menu.Items.Insert(context_menu.Items.Count - 1, modsGroup);
+            contextMenu.Items.Insert(contextMenu.Items.Count - 1, modsGroup);
         }
-        private static void addMenuItem(KeyValuePair<string, ModMenuItemClickedCallback> mod_kvp, Game.GUI.Controls.MenuItem modsGroup)
+
+        private static void AddMenuItem(KeyValuePair<string, ModMenuItemClickedCallback> modMenuItem, MenuItem modsGroup)
         {
-            var item = new Game.GUI.Controls.MenuItem(mod_kvp.Key);
-            item.Click += new Game.GUI.Controls.EventHandler((sender, args) =>
-            {
-                mod_kvp.Value();
-            });
+            var item = new MenuItem(modMenuItem.Key);
+            item.Click += (sender, args) => modMenuItem.Value();
             modsGroup.Items.Add(item);
         }
 

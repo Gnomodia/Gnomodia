@@ -48,6 +48,7 @@
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
@@ -57,7 +58,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ContentMods\CustomTextureManager.cs" />
+    <Compile Include="Attributes\EventListenerAttribute.cs" />
+    <None Include="ContentMods\CustomTextureManager.cs" />
+    <Compile Include="Events\PregameInitializeEventArgs.cs" />
+    <Compile Include="IModManager.cs" />
+    <Compile Include="IMod.cs" />
+    <Compile Include="Attributes\InstanceAttribute.cs" />
+    <Compile Include="ModManager.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Utility\DependencySorter.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="Utility\Serialization\SerializableDataBag.cs" />
@@ -84,17 +92,15 @@
     <None Include="ContentMods\CustomRecipe.cs" />
     <Compile Include="Modifications\EnumModification.cs" />
     <Compile Include="HelperMods\ModRightClickMenu.cs" />
-    <Compile Include="Modifications\ClassCreationHook.cs" />
+    <None Include="Modifications\ClassCreationHook.cs" />
     <Compile Include="Modifications\MethodModification.cs" />
     <Compile Include="MethodOf.cs" />
     <Compile Include="Modifications\MethodAddVirtual.cs" />
     <Compile Include="Modifications\MethodHook.cs" />
     <Compile Include="Modifications\MethodRefHook.cs" />
-    <Compile Include="ModEnvironment.cs" />
-    <Compile Include="ModReference.cs" />
+    <None Include="ModReference.cs" />
     <Compile Include="Mod.cs" />
-    <Compile Include="ModDataSaving.cs" />
-    <Compile Include="ModEnvironmentConfiguration.cs" />
+    <None Include="ModDataSaving.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuntimeModController.cs" />
     <Compile Include="Utility\MiscellaneousExtensions.cs" />
@@ -106,7 +112,9 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Images\Gnomodia.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
