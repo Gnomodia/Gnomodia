@@ -11,6 +11,7 @@ using Gnomodia.Annotations;
 using Gnomodia.Attributes;
 using Gnomodia.Events;
 using Gnomodia.HelperMods;
+using Gnomodia.Utility;
 using Microsoft.Xna.Framework;
 
 namespace alexschrod.MiningImprovements

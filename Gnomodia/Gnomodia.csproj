@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,9 +10,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Gnomodia</RootNamespace>
     <AssemblyName>Gnomodia</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PlatformTarget>x86</PlatformTarget>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -24,6 +25,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <DebugType>pdbonly</DebugType>
@@ -33,6 +35,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Gnomoria">
@@ -67,13 +70,9 @@
     <Compile Include="Attributes\InstanceAttribute.cs" />
     <Compile Include="ModManager.cs" />
     <Compile Include="Properties\Annotations.cs" />
-    <Compile Include="Utility\DependencySorter.cs" />
-    <Compile Include="EventArgs.cs" />
-    <Compile Include="Utility\Serialization\SerializableDataBag.cs" />
-    <Compile Include="Utility\Serialization\Json.cs" />
+    <None Include="Utility\DependencySorter.cs" />
     <Compile Include="Utility\SpriteFontHelpers.cs" />
     <Compile Include="Utility\GnomoriaExtensions.cs" />
-    <Compile Include="Utility\EventHandlerExtensions.cs" />
     <Compile Include="Utility\EnumerableExtensions.cs" />
     <Compile Include="Utility\FileExtensions.cs" />
     <Compile Include="Utility\DirectoryExtensions.cs" />
@@ -95,17 +94,15 @@
     <Compile Include="HelperMods\ModRightClickMenu.cs" />
     <None Include="Modifications\ClassCreationHook.cs" />
     <Compile Include="Modifications\MethodModification.cs" />
-    <Compile Include="MethodOf.cs" />
+    <Compile Include="Utility\MethodOf.cs" />
     <Compile Include="Modifications\MethodAddVirtual.cs" />
     <Compile Include="Modifications\MethodHook.cs" />
     <Compile Include="Modifications\MethodRefHook.cs" />
-    <None Include="ModReference.cs" />
     <Compile Include="Mod.cs" />
     <None Include="ModDataSaving.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuntimeModController.cs" />
     <Compile Include="Utility\MiscellaneousExtensions.cs" />
-    <Compile Include="Utility\WeakReference.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\Settings.settings">

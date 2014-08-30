@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Gnomodia
  *
  *  Copyright © 2013 Faark (http://faark.de/)
@@ -25,7 +25,7 @@ using System.Text;
 using System.Reflection;
 using Gnomodia;
 
-namespace Gnomodia
+namespace Gnomodia.Utility
 {
     //http://web.archive.org/web/20120124210217/http://evain.net/blog/articles/2010/05/05/parameterof-propertyof-methodof
 
