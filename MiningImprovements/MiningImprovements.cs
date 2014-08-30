@@ -15,9 +15,11 @@ using Microsoft.Xna.Framework;
 
 namespace alexschrod.MiningImprovements
 {
-    [CustomJob(JobName = "QuickMine")]
+    [CustomJob(JobName = JobName)]
     public class QuickMineJob : IModJob
     {
+        public const string JobName = "QuickMine";
+
         public JobTypeImpersonator JobTypeImpersonator
         {
             get { return new JobTypeImpersonator(JobType.Mine); }
@@ -82,9 +84,11 @@ namespace alexschrod.MiningImprovements
         }
     }
 
-    [CustomJob(JobName = "SafeTorches")]
+    [CustomJob(JobName = JobName)]
     public class SafeTorchesJob : IModJob
     {
+        public const string JobName = "SafeTorches";
+
         public JobTypeImpersonator JobTypeImpersonator
         {
             get { return new JobTypeImpersonator(JobType.Deconstruct); }
@@ -174,14 +178,14 @@ namespace alexschrod.MiningImprovements
         private ModRightClickMenu _rightClickMenu;
 
         [EventListener]
-        public void Initialize(object sender, PregameInitializeEventArgs eventArgs)
+        public void PostInitialize(object sender, PostGameInitializeEventArgs eventArgs)
         {
             _rightClickMenu.AddButton("Quick mine", QuickMine);
             _rightClickMenu.AddButton("Strip mine entire level", StripMineLevel);
             _rightClickMenu.AddButton("Keep only required torches", KeepRequiredTorches);
 
-            s_QuickMineJobType = ModCustomJobs.GetJobType("QuickMine");
-            s_SafeTorchesJobType = ModCustomJobs.GetJobType("SafeTorches");
+            s_QuickMineJobType = ModCustomJobs.GetJobType(QuickMineJob.JobName);
+            s_SafeTorchesJobType = ModCustomJobs.GetJobType(SafeTorchesJob.JobName);
         }
 
         public static void QuickMine()
@@ -329,26 +333,22 @@ namespace alexschrod.MiningImprovements
                 if (x - SafeTorchDistance >= 1)
                 {
                     Vector3 torchPosition = new Vector3(x - SafeTorchDistance, y, z);
-                    if (CheckBuildTorch(jobPosition, torchPosition, map))
-                        return;
+                    CheckBuildTorch(jobPosition, torchPosition, map);
                 }
                 if (x + SafeTorchDistance <= mapHeight - 2)
                 {
                     Vector3 torchPosition = new Vector3(x + SafeTorchDistance, y, z);
-                    if (CheckBuildTorch(jobPosition, torchPosition, map))
-                        return;
+                    CheckBuildTorch(jobPosition, torchPosition, map);
                 }
                 if (y - SafeTorchDistance >= 1)
                 {
                     Vector3 torchPosition = new Vector3(x, y - SafeTorchDistance, z);
-                    if (CheckBuildTorch(jobPosition, torchPosition, map))
-                        return;
+                    CheckBuildTorch(jobPosition, torchPosition, map);
                 }
                 if (y + SafeTorchDistance <= mapWidth - 2)
                 {
                     Vector3 torchPosition = new Vector3(x, y + SafeTorchDistance, z);
-                    if (CheckBuildTorch(jobPosition, torchPosition, map))
-                        return;
+                    CheckBuildTorch(jobPosition, torchPosition, map);
                 }
             }
             else
@@ -367,17 +367,16 @@ namespace alexschrod.MiningImprovements
             }
         }
 
-        private static bool CheckBuildTorch(Vector3 jobPosition, Vector3 torchPosition, Map map)
+        private static void CheckBuildTorch(Vector3 jobPosition, Vector3 torchPosition, Map map)
         {
             MapCell cell = map.GetCell(torchPosition);
-            if (cell.EmbeddedWall is Torch)
-            {
-                BuildConstructionJobData data = new BuildConstructionJobData(ConstructionID.Torch);
-                BuildConstructionJob buildConstructionJob = new BuildConstructionJob(jobPosition, data);
-                buildConstructionJob.RequiredComponents.Add(new JobComponent(ItemID.Torch, (int)Material.Count));
-                GnomanEmpire.Instance.Fortress.JobBoard.AddJob(buildConstructionJob);
-            }
-            return false;
+            if (!(cell.EmbeddedWall is Torch))
+                return;
+            
+            BuildConstructionJobData data = new BuildConstructionJobData(ConstructionID.Torch);
+            BuildConstructionJob buildConstructionJob = new BuildConstructionJob(jobPosition, data);
+            buildConstructionJob.RequiredComponents.Add(new JobComponent(ItemID.Torch, (int)Material.Count));
+            GnomanEmpire.Instance.Fortress.JobBoard.AddJob(buildConstructionJob);
         }
     }
 }

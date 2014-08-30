@@ -60,7 +60,8 @@
   <ItemGroup>
     <Compile Include="Attributes\EventListenerAttribute.cs" />
     <None Include="ContentMods\CustomTextureManager.cs" />
-    <Compile Include="Events\PregameInitializeEventArgs.cs" />
+    <Compile Include="Events\PostGameInitializeEventArgs.cs" />
+    <Compile Include="Events\PreGameInitializeEventArgs.cs" />
     <Compile Include="IModManager.cs" />
     <Compile Include="IMod.cs" />
     <Compile Include="Attributes\InstanceAttribute.cs" />

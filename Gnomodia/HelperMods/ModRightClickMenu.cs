@@ -92,7 +92,7 @@ namespace Gnomodia.HelperMods
         private static FieldInfo s_RightClickMenuContextMenu;
 
         [EventListener]
-        public void InitializeRightClickMenu(object sender, PregameInitializeEventArgs eventArgs)
+        public void InitializeRightClickMenu(object sender, PreGameInitializeEventArgs eventArgs)
         {
             s_RightClickMenuContextMenu = typeof(RightClickMenu)
                 .GetFields(BindingFlags.Instance | BindingFlags.NonPublic)

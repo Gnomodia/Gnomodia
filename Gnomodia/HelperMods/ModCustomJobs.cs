@@ -213,7 +213,7 @@ namespace Gnomodia.HelperMods
         private JobType _maxJobType;
 
         [EventListener]
-        public void Initialize(object sender, PregameInitializeEventArgs eventArgs)
+        public void Initialize(object sender, PreGameInitializeEventArgs eventArgs)
         {
             _maxJobType = Enum.GetValues(typeof(JobType)).OfType<JobType>().Max();
 

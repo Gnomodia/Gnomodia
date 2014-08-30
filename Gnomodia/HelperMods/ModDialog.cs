@@ -315,7 +315,7 @@ namespace Gnomodia.HelperMods
             {
                 _titleLabel.Text = "Gnomodia";
 
-                _infoLabel.Text = "Modding toolkit to add additional features or modify existing features of Gnomoria. Gnomodia is based on a Modding Framework for Gnormoia by Faark (faark.de).";
+                _infoLabel.Text = "Modding toolkit to add additional features or modify existing features of Gnomoria. Gnomodia is based on a Modding Framework for Gnomoria by Faark (faark.de).";
 
                 _versionLabel.Text = string.Format("Version: {0}", typeof(ModDialog).Assembly.GetName().Version);
                 _authorLabel.Text = "Author(s): The Gnomodia Team";

@@ -60,7 +60,8 @@ namespace Gnomodia
         {
             try
             {
-                ModManager.OnPregameInitializeEvent(new PregameInitializeEventArgs());
+                ModManager.OnPreGameInitializeEvent(new PreGameInitializeEventArgs());
+                ModManager.OnPostGameInitializeEvent(new PostGameInitializeEventArgs());
             }
             catch (Exception err)
             {

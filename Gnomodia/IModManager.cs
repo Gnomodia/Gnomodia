@@ -26,6 +26,7 @@ namespace Gnomodia
     {
         IMod[] Mods { get; }
 
-        void OnPregameInitializeEvent(PregameInitializeEventArgs args);
+        void OnPreGameInitializeEvent(PreGameInitializeEventArgs args);
+        void OnPostGameInitializeEvent(PostGameInitializeEventArgs args);
     }
 }

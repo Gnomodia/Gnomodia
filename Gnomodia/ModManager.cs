@@ -20,11 +20,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition.Hosting;
 using System.Linq;
 using System.Reflection;
-using Game;
-using GameLibrary;
 using Gnomodia;
 using System.ComponentModel.Composition;
 using Gnomodia.Annotations;
@@ -36,7 +33,8 @@ namespace GnomodiaUI
     [Export(typeof(IModManager))]
     internal class ModManager : IModManager, IPartImportsSatisfiedNotification
     {
-        internal delegate void PregameInitialize(object sender, PregameInitializeEventArgs args);
+        internal delegate void PreGameInitialize(object sender, PreGameInitializeEventArgs args);
+        internal delegate void PostGameInitialize(object sender, PostGameInitializeEventArgs args);
 
         [ImportMany(typeof(IMod), RequiredCreationPolicy = CreationPolicy.Shared), UsedImplicitly]
         IEnumerable<IMod> _mods;
@@ -63,23 +61,44 @@ namespace GnomodiaUI
             }
         }
 
+        private static IEnumerable<TDelegate> GetEventDelegates<TEventArgs, TDelegate>(IEnumerable<MethodInfo> eventMethods, IMod mod)
+        {
+            return (from eventMethod in eventMethods
+                    let parameters = eventMethod.GetParameters()
+                    where parameters.Length == 2 && parameters[1].ParameterType == typeof(TEventArgs)
+                    select Delegate.CreateDelegate(typeof(TDelegate), mod, eventMethod, false)).OfType<TDelegate>();
+        }
+
         private void HookUpEvents(IMod mod)
         {
             // Get all event listeners from mod
-            var methodEvents = from method in mod.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                               where method.GetCustomAttributes(typeof(EventListenerAttribute), false).Any()
-                               select method;
+            var eventMethods = (from method in mod.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                                where method.GetCustomAttributes(typeof(EventListenerAttribute), false).Any()
+                                select method).ToList();
 
             // Pre-game Initialize events
-            foreach (var pregameInitializeDelegate in methodEvents.Select(methodEvent => Delegate.CreateDelegate(typeof(PregameInitialize), mod, methodEvent, false)).OfType<PregameInitialize>())
-                PregameInitializeEvent += pregameInitializeDelegate;
+            foreach (var preGameInitializeDelegate in GetEventDelegates<PreGameInitializeEventArgs, PreGameInitialize>(eventMethods, mod))
+                PreGameInitializeEvent += preGameInitializeDelegate;
 
+            // Post-game Initialize events
+            foreach (var postGameInitializeDelegate in GetEventDelegates<PostGameInitializeEventArgs, PostGameInitialize>(eventMethods, mod))
+                PostGameInitializeEvent += postGameInitializeDelegate;
         }
 
-        private event PregameInitialize PregameInitializeEvent;
-        public void OnPregameInitializeEvent(PregameInitializeEventArgs args)
+        private event PreGameInitialize PreGameInitializeEvent;
+        public void OnPreGameInitializeEvent(PreGameInitializeEventArgs args)
         {
-            PregameInitialize handler = PregameInitializeEvent;
+            var handler = PreGameInitializeEvent;
+            if (handler != null)
+            {
+                handler(this, args);
+            }
+        }
+
+        private event PostGameInitialize PostGameInitializeEvent;
+        public void OnPostGameInitializeEvent(PostGameInitializeEventArgs args)
+        {
+            var handler = PostGameInitializeEvent;
             if (handler != null)
             {
                 handler(this, args);
@@ -89,9 +108,7 @@ namespace GnomodiaUI
         private void SetInstances(IMod mod)
         {
             var fieldInstances =
-                from field in
-                    mod.GetType()
-                        .GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+                from field in mod.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
                 where field.GetCustomAttributes(typeof(InstanceAttribute), false).Any()
                 select field;
             foreach (var instanceMember in fieldInstances)
@@ -102,9 +119,7 @@ namespace GnomodiaUI
                     instanceMember.SetValue(mod, instanceMod);
             }
             var propertyInstances =
-                from property in
-                    mod.GetType()
-                        .GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+                from property in mod.GetType() .GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
                 where property.GetCustomAttributes(typeof(InstanceAttribute), false).Any()
                 select property;
             foreach (var instanceMember in propertyInstances)
@@ -112,7 +127,7 @@ namespace GnomodiaUI
                 Type instanceType = instanceMember.PropertyType;
                 IMod instanceMod = Mods.SingleOrDefault(m => m.GetType() == instanceType);
                 if (instanceMod != null)
-                instanceMember.SetValue(mod, mod, null);
+                    instanceMember.SetValue(mod, mod, null);
             }
         }
     }
