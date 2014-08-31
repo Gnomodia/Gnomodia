@@ -1,7 +1,6 @@
 /*
  *  Gnomodia
  *
- *  Copyright © 2013 Faark (http://faark.de/)
  *  Copyright © 2013 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -41,6 +40,10 @@ namespace Gnomodia.HelperMods
     public class ModDialog : SupportMod
     {
         #region Setup stuff
+        public override string Id
+        {
+            get { return "ModDialog"; }
+        }
         public override string Author
         {
             get

@@ -17,13 +17,12 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Gnomodia.Events
+using System;
+
+namespace Gnomodia.Attributes
 {
-    /// <summary>
-    /// This is the event where you can be certain all other mods have initialized,
-    /// so that you may safely access their provided features.
-    /// </summary>
-    public class PostGameInitializeEventArgs : GameInitializeEventArgs
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+    public sealed class SaveObjectAttribute : Attribute
     {
     }
 }

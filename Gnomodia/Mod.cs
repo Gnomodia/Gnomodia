@@ -31,21 +31,22 @@ namespace Gnomodia
 {
     public abstract class Mod : IMod
     {
-        public virtual String Name
+        public abstract string Id { get; }
+        public virtual string Name
         {
             get
             {
                 return this.GetType().Name;
             }
         }
-        public virtual String Description
+        public virtual string Description
         {
             get
             {
                 return "v" + this.Version.ToString() + "; " + this.GetType().Namespace + "; " + this.GetType().Assembly.ManifestModule.ScopeName + " v" + this.GetType().Assembly.GetName().Version;
             }
         }
-        public virtual String Author
+        public virtual string Author
         {
             get
             {
@@ -61,7 +62,7 @@ namespace Gnomodia
         }
 
         public abstract IEnumerable<IModification> Modifications { get; }
-    
+
         /*public virtual IEnumerable<ModDependency> Dependencies
         {
             get

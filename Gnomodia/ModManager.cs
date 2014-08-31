@@ -35,6 +35,10 @@ namespace GnomodiaUI
     {
         internal delegate void PreGameInitialize(object sender, PreGameInitializeEventArgs args);
         internal delegate void PostGameInitialize(object sender, PostGameInitializeEventArgs args);
+        internal delegate void PreSaveGame(object sender, PreSaveGameEventArgs args);
+        internal delegate void PostSaveGame(object sender, PostSaveGameEventArgs args);
+        internal delegate void PreLoadGame(object sender, PreLoadGameEventArgs args);
+        internal delegate void PostLoadGame(object sender, PostLoadGameEventArgs args);
 
         [ImportMany(typeof(IMod), RequiredCreationPolicy = CreationPolicy.Shared), UsedImplicitly]
         IEnumerable<IMod> _mods;
@@ -83,6 +87,22 @@ namespace GnomodiaUI
             // Post-game Initialize events
             foreach (var postGameInitializeDelegate in GetEventDelegates<PostGameInitializeEventArgs, PostGameInitialize>(eventMethods, mod))
                 PostGameInitializeEvent += postGameInitializeDelegate;
+
+            // Pre-save game events
+            foreach (var preSaveGameDelegate in GetEventDelegates<PreSaveGameEventArgs, PreSaveGame>(eventMethods, mod))
+                PreSaveGameEvent += preSaveGameDelegate;
+
+            // Post-save game events
+            foreach (var postSaveGameDelegate in GetEventDelegates<PostSaveGameEventArgs, PostSaveGame>(eventMethods, mod))
+                PostSaveGameEvent += postSaveGameDelegate;
+
+            // Pre-load game events
+            foreach (var preLoadGameDelegate in GetEventDelegates<PreLoadGameEventArgs, PreLoadGame>(eventMethods, mod))
+                PreLoadGameEvent += preLoadGameDelegate;
+
+            // Post-loadgame events
+            foreach (var postLoadGameDelegate in GetEventDelegates<PostLoadGameEventArgs, PostLoadGame>(eventMethods, mod))
+                PostLoadGameEvent += postLoadGameDelegate;
         }
 
         private event PreGameInitialize PreGameInitializeEvent;
@@ -99,6 +119,46 @@ namespace GnomodiaUI
         public void OnPostGameInitializeEvent(PostGameInitializeEventArgs args)
         {
             var handler = PostGameInitializeEvent;
+            if (handler != null)
+            {
+                handler(this, args);
+            }
+        }
+
+        private event PreSaveGame PreSaveGameEvent;
+        public void OnPreSaveGameEvent(PreSaveGameEventArgs args)
+        {
+            var handler = PreSaveGameEvent;
+            if (handler != null)
+            {
+                handler(this, args);
+            }
+        }
+
+        private event PostSaveGame PostSaveGameEvent;
+        public void OnPostSaveGameEvent(PostSaveGameEventArgs args)
+        {
+            var handler = PostSaveGameEvent;
+            if (handler != null)
+            {
+                handler(this, args);
+            }
+        }
+
+        private event PreLoadGame PreLoadGameEvent;
+        public void OnPreLoadGameEvent(PreLoadGameEventArgs args)
+        {
+            var handler = PreLoadGameEvent;
+            if (handler != null)
+            {
+                handler(this, args);
+            }
+        }
+
+        private event PostLoadGame PostLoadGameEvent;
+        public void OnPostLoadGameEvent(PostLoadGameEventArgs args)
+        {
+            var handler = PostLoadGameEvent;
             if (handler != null)
             {
                 handler(this, args);

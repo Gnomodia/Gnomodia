@@ -30,7 +30,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Gnomodia")]
 [assembly: AssemblyProduct("Gnomodia")]
-[assembly: AssemblyCopyright("Copyright © Gnomodia 2013")]
+[assembly: AssemblyCopyright("Copyright © Gnomodia 2013, 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

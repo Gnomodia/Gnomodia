@@ -25,11 +25,13 @@ using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using Gnomodia.Attributes;
 using Gnomodia.Events;
 using Gnomodia.Utility;
 
 namespace Gnomodia
-{   
+{
     public class RuntimeModController
     {
         private static RuntimeModController Instance { get; set; }
@@ -71,45 +73,52 @@ namespace Gnomodia
             }
         }
 
-        public static void PreSaveHook(Game.GnomanEmpire self, bool fallenKingdom)
+        private static string GetSaveLocation(bool fallenKingdom, string worldName)
         {
-            foreach (var mod in Instance.ModManager.Mods)
-            {
-                //mod.PreGameSaved(modSaveFile.GetDataFor(mod));
-            }
+            var savePath = fallenKingdom ? Game.GnomanEmpire.SaveFolderPath("OldWorlds\\") : Game.GnomanEmpire.SaveFolderPath("Worlds\\");
+            // Todo: fallen kingdoms not considered with filename and so on!
+            return Path.Combine(savePath, string.Format("{0}.gnomodia", worldName));
         }
-        public static System.Threading.Tasks.Task PostSaveHook(System.Threading.Tasks.Task saveTask, Game.GnomanEmpire self, bool fallenKingdom)
+
+        public static void PreSaveGame(Game.GnomanEmpire self, bool fallenKingdom)
         {
-            return saveTask.ContinueWith((task) =>
+            Instance.ModManager.OnPreSaveGameEvent(new PreSaveGameEventArgs(fallenKingdom));
+        }
+
+        public static System.Threading.Tasks.Task PostSaveGame(System.Threading.Tasks.Task saveTask, Game.GnomanEmpire self, bool fallenKingdom)
+        {
+            return saveTask.ContinueWith(task =>
             {
-                foreach (var mod in Instance.ModManager.Mods)
+                var saveFile = GetSaveLocation(fallenKingdom, self.CurrentWorld);
+                using (FileStream saveStream = File.Create(saveFile))
                 {
-                    //mod.AfterGameSaved(modSaveFile.GetDataFor(mod));
+                    ModDataSaver modDataSaver = new ModDataSaver(saveStream, Instance.ModManager);
+                    modDataSaver.Save();
                 }
-                var path = fallenKingdom ? Game.GnomanEmpire.SaveFolderPath("OldWorlds\\") : Game.GnomanEmpire.SaveFolderPath("Worlds\\");
-                // Todo: fallen kingdoms not considered with filename and so on!
-                var file = System.IO.Path.Combine(path, self.CurrentWorld + ".msv");
-                //modSaveFile.SaveTo(new System.IO.FileInfo(file));
+
+                Instance.ModManager.OnPostSaveGameEvent(new PostSaveGameEventArgs(fallenKingdom));
             });
         }
-        public static void PreLoadHook(Game.GnomanEmpire self, string fileName, bool fallenKingdom)
+
+        public static void PreLoadGame(Game.GnomanEmpire self, string fileName, bool fallenKingdom)
         {
-            var dir = fallenKingdom ? Game.GnomanEmpire.SaveFolderPath("OldWorlds\\") : Game.GnomanEmpire.SaveFolderPath("Worlds\\");
-            var file = System.IO.Path.Combine(dir, fileName + ".msv");
-            //modSaveFile = ModSaveFile.LoadFrom(new System.IO.FileInfo(file));
-            foreach (var mod in Instance.ModManager.Mods)
-            {
-                //mod.PreGameLoaded(modSaveFile.GetDataFor(mod));
-            }
+            Instance.ModManager.OnPreLoadGameEvent(new PreLoadGameEventArgs(fallenKingdom));
         }
-        public static void PostLoadHook(Game.GnomanEmpire self, string fileName, bool fallenKingdom)
+
+        public static void PostLoadGame(Game.GnomanEmpire self, string fileName, bool fallenKingdom)
         {
-            foreach (var mod in Instance.ModManager.Mods)
-            {
-                //mod.AfterGameLoaded(modSaveFile.GetDataFor(mod));
-            }
+            var saveFile = GetSaveLocation(fallenKingdom, self.CurrentWorld);
+
+            if (File.Exists(saveFile))
+                using (FileStream saveStream = File.OpenRead(saveFile))
+                {
+                    ModDataSaver modDataSaver = new ModDataSaver(saveStream, Instance.ModManager);
+                    modDataSaver.Load();
+                }
+
+            Instance.ModManager.OnPostLoadGameEvent(new PostLoadGameEventArgs(fallenKingdom));
         }
-        public static void PreCreateHook(Game.Map self, Game.CreateWorldOptions options)
+        public static void PreGenerateMap(Game.Map self, Game.CreateWorldOptions options)
         {
             //modSaveFile = new ModSaveFile();
             foreach (var mod in Instance.ModManager.Mods)
@@ -117,7 +126,7 @@ namespace Gnomodia
                 //mod.PreWorldCreation(modSaveFile.GetDataFor(mod), self, options);
             }
         }
-        public static void PostCreateHook(Game.Map self, Game.CreateWorldOptions options)
+        public static void PostGenerateMap(Game.Map self, Game.CreateWorldOptions options)
         {
             foreach (var mod in Instance.ModManager.Mods)
             {

@@ -44,6 +44,12 @@ namespace Gnomodia.HelperMods
         public delegate void ModMenuItemClickedCallback();
         #endregion
         #region Setup stuff
+
+        public override string Id
+        {
+            get { return "ModRightClickMenu"; }
+        }
+
         public override string Author
         {
             get

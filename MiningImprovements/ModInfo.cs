@@ -11,6 +11,11 @@ namespace alexschrod.MiningImprovements
             get { return "alexschrod"; }
         }
 
+        public override string Id
+        {
+            get { return "MiningImprovements"; }
+        }
+
         public override string Name
         {
             get { return "Mining Improvements"; }

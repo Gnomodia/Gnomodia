@@ -875,37 +875,44 @@ namespace GnomodiaUI
             //Module.Resources.Add(new EmbeddedResource("Microsoft.Xna.Framework.RuntimeProfile", ManifestResourceAttributes.Public, Encoding.ASCII.GetBytes("Windows.v4.0.Reach\n")));
         }
 
-        internal void Inject_SaveLoadCalls()
+        internal void InjectMapGenerationCalls()
         {
             TypeDefinition runtimeModControllerTypeDefinition = Module.Import(typeof(RuntimeModController)).Resolve();
+
             Inject_Hook(
                 Module.GetType("Game.Map").Methods.Single(m => m.Name == "GenerateMap"),
-                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PreCreateHook")),
+                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PreGenerateMap")),
                 MethodHookType.RunBefore,
                 MethodHookFlags.None);
             Inject_Hook(
                 Module.GetType("Game.Map").Methods.Single(m => m.Name == "GenerateMap"),
-                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PostCreateHook")),
+                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PostGenerateMap")),
                 MethodHookType.RunAfter,
                 MethodHookFlags.None);
+        }
+
+        internal void InjectSaveLoadCalls()
+        {
+            TypeDefinition runtimeModControllerTypeDefinition = Module.Import(typeof(RuntimeModController)).Resolve();
+            
             Inject_Hook(
                 Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "LoadGame"),
-                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PreLoadHook")),
+                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PreLoadGame")),
                 MethodHookType.RunBefore,
                 MethodHookFlags.None);
             Inject_Hook(
                 Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "LoadGame"),
-                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PostLoadHook")),
+                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PostLoadGame")),
                 MethodHookType.RunAfter,
                 MethodHookFlags.None);
             Inject_Hook(
                  Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "SaveGame"),
-                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PreSaveHook")),
+                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PreSaveGame")),
                  MethodHookType.RunBefore,
                  MethodHookFlags.None);
             Inject_Hook(
                  Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "SaveGame"),
-                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PostSaveHook")),
+                Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PostSaveGame")),
                  MethodHookType.RunAfter,
                  MethodHookFlags.None);
 

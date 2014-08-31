@@ -74,6 +74,10 @@ namespace Gnomodia.HelperMods
     public class ModCustomJobs : SupportMod
     {
         #region Setup stuff
+        public override string Id
+        {
+            get { return "ModCustomJobs"; }
+        }
         public override string Author
         {
             get

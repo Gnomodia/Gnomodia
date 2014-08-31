@@ -25,25 +25,11 @@ namespace Gnomodia
 {
     public interface IMod
     {
-        String Name { get; }
-        String Description { get; }
-        String Author { get; }
+        string Id { get; }
+        string Name { get; }
+        string Description { get; }
+        string Author { get; }
         Version Version { get; }
         IEnumerable<IModification> Modifications { get; }
-        /*IEnumerable<ModDependency> Dependencies { get; }
-        IEnumerable<ModType> InitAfter { get; }
-        IEnumerable<ModType> InitBefore { get; }
-        String SetupData { get; set; }
-
-        void Initialize_PreGame();
-        void Initialize_ModDiscovery();
-        void Initialize_PreGeneration();
-
-        void PreWorldCreation(ModSaveData data, Game.Map map, Game.CreateWorldOptions options);
-        void PostWorldCreation(ModSaveData data, Game.Map map, Game.CreateWorldOptions options);
-        void PreGameLoaded(ModSaveData data);
-        void AfterGameLoaded(ModSaveData data);
-        void PreGameSaved(ModSaveData data);
-        void AfterGameSaved(ModSaveData data);*/
     }
 }

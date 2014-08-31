@@ -28,5 +28,9 @@ namespace Gnomodia
 
         void OnPreGameInitializeEvent(PreGameInitializeEventArgs args);
         void OnPostGameInitializeEvent(PostGameInitializeEventArgs args);
+        void OnPreSaveGameEvent(PreSaveGameEventArgs args);
+        void OnPostSaveGameEvent(PostSaveGameEventArgs args);
+        void OnPreLoadGameEvent(PreLoadGameEventArgs args);
+        void OnPostLoadGameEvent(PostLoadGameEventArgs args);
     }
 }

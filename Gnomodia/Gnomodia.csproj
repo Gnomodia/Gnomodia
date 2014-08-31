@@ -63,14 +63,21 @@
   <ItemGroup>
     <Compile Include="Attributes\EventListenerAttribute.cs" />
     <None Include="ContentMods\CustomTextureManager.cs" />
+    <Compile Include="Attributes\SaveObjectAttribute.cs" />
+    <Compile Include="Events\GameInitializeEventArgs.cs" />
     <Compile Include="Events\PostGameInitializeEventArgs.cs" />
+    <Compile Include="Events\PostSaveGameEventArgs.cs" />
     <Compile Include="Events\PreGameInitializeEventArgs.cs" />
+    <Compile Include="Events\PostLoadGameEventArgs.cs" />
+    <Compile Include="Events\PreLoadGameEventArgs.cs" />
+    <Compile Include="Events\PreSaveGameEventArgs.cs" />
+    <Compile Include="Events\SaveGameEventArgs.cs" />
     <Compile Include="IModManager.cs" />
     <Compile Include="IMod.cs" />
     <Compile Include="Attributes\InstanceAttribute.cs" />
     <Compile Include="ModManager.cs" />
+    <Compile Include="ModDataSaver.cs" />
     <Compile Include="Properties\Annotations.cs" />
-    <None Include="Utility\DependencySorter.cs" />
     <Compile Include="Utility\SpriteFontHelpers.cs" />
     <Compile Include="Utility\GnomoriaExtensions.cs" />
     <Compile Include="Utility\EnumerableExtensions.cs" />
