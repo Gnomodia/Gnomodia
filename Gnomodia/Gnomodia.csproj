@@ -105,7 +105,6 @@
     <Compile Include="Modifications\MethodAddVirtual.cs" />
     <Compile Include="Modifications\MethodHook.cs" />
     <Compile Include="Modifications\MethodRefHook.cs" />
-    <Compile Include="Mod.cs" />
     <None Include="ModDataSaving.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuntimeModController.cs" />

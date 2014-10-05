@@ -1,4 +1,23 @@
-﻿using System;
+﻿/*
+ *  Gnomodia
+ *
+ *  Copyright © 2013 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,11 +44,13 @@ namespace Gnomodia
         private class ModDataSaveHeader
         {
             private readonly Stream _stream;
+            private readonly IModManager _modManager;
             private readonly Dictionary<IMod, long?> _modSavePositions = new Dictionary<IMod, long?>();
 
-            public ModDataSaveHeader(Stream stream, IEnumerable<IMod> mods)
+            public ModDataSaveHeader(Stream stream, IEnumerable<IMod> mods, IModManager modManager)
             {
                 _stream = stream;
+                _modManager = modManager;
 
                 foreach (var mod in mods)
                 {
@@ -46,7 +67,7 @@ namespace Gnomodia
                 writer.Write(_modSavePositions.Count);
                 foreach (var modSaveLocation in _modSavePositions)
                 {
-                    writer.Write(modSaveLocation.Key.Id);
+                    writer.Write(_modManager.GetModMetadata(modSaveLocation.Key).Id);
                     writer.Write(modSaveLocation.Value ?? 0);
                 }
 
@@ -66,7 +87,7 @@ namespace Gnomodia
                     string modId = reader.ReadString();
                     long saveLocation = reader.ReadInt64();
 
-                    IMod key = _modSavePositions.Keys.SingleOrDefault(m => m.Id == modId);
+                    IMod key = _modSavePositions.Keys.SingleOrDefault(m => _modManager.GetModMetadata(m).Id == modId);
                     if (key == null)
                         continue;
 
@@ -92,12 +113,14 @@ namespace Gnomodia
         }
 
         private readonly Stream _stream;
+        private readonly IModManager _modManager;
         private readonly Dictionary<IMod, MemberInfo> _saveableMods;
 
         public ModDataSaver(Stream stream, IModManager modManager)
         {
             _stream = stream;
-            _saveableMods = modManager.Mods
+            _modManager = modManager;
+            _saveableMods = modManager.CreateOrGetAllMods()
                 .Where(mod => mod.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                     .Union<MemberInfo>(mod.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
                     .Count(mi => mi.GetCustomAttributes(typeof(SaveObjectAttribute), false).Any()) == 1)
@@ -108,7 +131,7 @@ namespace Gnomodia
 
         public void Save()
         {
-            ModDataSaveHeader header = new ModDataSaveHeader(_stream, _saveableMods.Keys);
+            ModDataSaveHeader header = new ModDataSaveHeader(_stream, _saveableMods.Keys,_modManager);
             header.WriteHeader();
 
             BinaryFormatter formatter = new BinaryFormatter();
@@ -137,7 +160,7 @@ namespace Gnomodia
 
         public void Load()
         {
-            ModDataSaveHeader header = new ModDataSaveHeader(_stream, _saveableMods.Keys);
+            ModDataSaveHeader header = new ModDataSaveHeader(_stream, _saveableMods.Keys,_modManager);
             header.ReadHeader();
 
             BinaryFormatter formatter = new BinaryFormatter();

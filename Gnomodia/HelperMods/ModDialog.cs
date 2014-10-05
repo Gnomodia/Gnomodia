@@ -1,7 +1,7 @@
 /*
  *  Gnomodia
  *
- *  Copyright © 2013 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
+ *  Copyright © 2013, 2014 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published by
@@ -17,7 +17,6 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
@@ -28,7 +27,6 @@ using Game.GUI;
 using Game.GUI.Controls;
 using Gnomodia.Annotations;
 using Gnomodia.Attributes;
-using Gnomodia.Events;
 using Gnomodia.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -36,34 +34,14 @@ using EventArgs = Game.GUI.Controls.EventArgs;
 
 namespace Gnomodia.HelperMods
 {
-    [Export(typeof(IMod))]
-    public class ModDialog : SupportMod
+    [GnomodiaMod(
+        Id = "ModDialog",
+        Name = "ModDialog",
+        Author = "alexschrod",
+        Description = "Shows information about and lets you configure mods in-game",
+        Version = AssemblyResources.AssemblyBaseVersion + AssemblyResources.AssemblyPreReleaseVersion + "+" + AssemblyResources.GnomoriaTargetVersion)]
+    public class ModDialog : IMod
     {
-        #region Setup stuff
-        public override string Id
-        {
-            get { return "ModDialog"; }
-        }
-        public override string Author
-        {
-            get
-            {
-                return "alexschrod";
-            }
-        }
-        public override string Description
-        {
-            get
-            {
-                return "Shows information about and lets you configure mods in-game";
-            }
-        }
-        public override Version Version
-        {
-            get { return typeof(ModDialog).Assembly.GetName().Version; }
-        }
-        #endregion
-
         [Instance]
         private static ModDialog Instance { get; [UsedImplicitly] set; }
 
@@ -74,7 +52,7 @@ namespace Gnomodia.HelperMods
         private static Label s_GnomodiaVersionLabel;
         private static Label s_GnomoriaVersionLabel;
 
-        public override IEnumerable<IModification> Modifications
+        public IEnumerable<IModification> Modifications
         {
             get
             {
@@ -326,14 +304,14 @@ namespace Gnomodia.HelperMods
             else
             {
                 int modIndex = ModListBox.ItemIndex - 1;
-                IMod mod = _modManager.Mods[modIndex];
+                var modMetadata = _modManager.ModMetadata[modIndex];
 
-                _titleLabel.Text = mod.Name;
+                _titleLabel.Text = modMetadata.Name;
 
-                _infoLabel.Text = mod.Description;
+                _infoLabel.Text = modMetadata.Description;
 
-                _versionLabel.Text = string.Format("Version: {0}", mod.Version);
-                _authorLabel.Text = string.Format("Author(s): {0}", mod.Author);
+                _versionLabel.Text = string.Format("Version: {0}", modMetadata.Version);
+                _authorLabel.Text = string.Format("Author(s): {0}", modMetadata.Author);
             }
 
             _infoLabel.Height = _infoLabel.FullHeight;
@@ -354,9 +332,9 @@ namespace Gnomodia.HelperMods
             ModListBox.c81fb310624c15a101535d14adc9ec383.Add("Gnomodia");
             ModListBox.ItemIndexChanged += ModListBoxOnItemIndexChanged;
 
-            foreach (IMod mod in modManager.Mods)
+            foreach (var modMetadata in modManager.ModMetadata)
             {
-                ModListBox.c81fb310624c15a101535d14adc9ec383.Add(mod.Name);
+                ModListBox.c81fb310624c15a101535d14adc9ec383.Add(modMetadata.Name);
             }
 
             containingPanel.Add(ModListBox);

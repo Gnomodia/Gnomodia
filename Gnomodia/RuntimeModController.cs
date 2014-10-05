@@ -121,14 +121,14 @@ namespace Gnomodia
         public static void PreGenerateMap(Game.Map self, Game.CreateWorldOptions options)
         {
             //modSaveFile = new ModSaveFile();
-            foreach (var mod in Instance.ModManager.Mods)
+            foreach (var mod in Instance.ModManager.CreateOrGetAllMods())
             {
                 //mod.PreWorldCreation(modSaveFile.GetDataFor(mod), self, options);
             }
         }
         public static void PostGenerateMap(Game.Map self, Game.CreateWorldOptions options)
         {
-            foreach (var mod in Instance.ModManager.Mods)
+            foreach (var mod in Instance.ModManager.CreateOrGetAllMods())
             {
                 //mod.PostWorldCreation(modSaveFile.GetDataFor(mod), self, options);
             }

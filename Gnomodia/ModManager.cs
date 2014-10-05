@@ -2,7 +2,7 @@
  *  Gnomodia UI
  *
  *  Copyright © 2013 Faark (http://faark.de/)
- *  Copyright © 2013 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
+ *  Copyright © 2013, 2014 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -41,14 +41,33 @@ namespace GnomodiaUI
         internal delegate void PostLoadGame(object sender, PostLoadGameEventArgs args);
 
         [ImportMany(typeof(IMod), RequiredCreationPolicy = CreationPolicy.Shared), UsedImplicitly]
-        IEnumerable<IMod> _mods;
+        IEnumerable<Lazy<IMod, IModMetadata>> _mods;
 
-        public IMod[] Mods
+        public IModMetadata[] ModMetadata
         {
-            get
-            {
-                return _mods/*.Select(m => m.Value)*/.ToArray();
-            }
+            get { return _mods.Select(m => m.Metadata).ToArray(); }
+        }
+
+        public IModMetadata GetModMetadata(IMod mod)
+        {
+            return _mods.Where(m => m.Value == mod).Select(m => m.Metadata).SingleOrDefault();
+        }
+
+        public IMod CreateOrGet(IModMetadata metadata)
+        {
+            return metadata == null
+                ? null
+                : _mods.Where(m => m.Metadata == metadata).Select(m => m.Value).SingleOrDefault();
+        }
+
+        public IMod CreateOrGet(string modId)
+        {
+            return CreateOrGet(_mods.Where(m => m.Metadata.Id == modId).Select(m => m.Metadata).SingleOrDefault());
+        }
+
+        public IMod[] CreateOrGetAllMods()
+        {
+            return _mods.Select(m => m.Value).ToArray();
         }
 
         public void OnImportsSatisfied()
@@ -58,7 +77,7 @@ namespace GnomodiaUI
 
         private void InitializeMods()
         {
-            foreach (var mod in Mods)
+            foreach (var mod in CreateOrGetAllMods())
             {
                 SetInstances(mod);
                 HookUpEvents(mod);
@@ -106,6 +125,7 @@ namespace GnomodiaUI
         }
 
         private event PreGameInitialize PreGameInitializeEvent;
+
         public void OnPreGameInitializeEvent(PreGameInitializeEventArgs args)
         {
             var handler = PreGameInitializeEvent;
@@ -174,18 +194,18 @@ namespace GnomodiaUI
             foreach (var instanceMember in fieldInstances)
             {
                 Type instanceType = instanceMember.FieldType;
-                IMod instanceMod = Mods.SingleOrDefault(m => m.GetType() == instanceType);
+                IMod instanceMod = CreateOrGetAllMods().SingleOrDefault(m => m.GetType() == instanceType);
                 if (instanceMod != null)
                     instanceMember.SetValue(mod, instanceMod);
             }
             var propertyInstances =
-                from property in mod.GetType() .GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+                from property in mod.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
                 where property.GetCustomAttributes(typeof(InstanceAttribute), false).Any()
                 select property;
             foreach (var instanceMember in propertyInstances)
             {
                 Type instanceType = instanceMember.PropertyType;
-                IMod instanceMod = Mods.SingleOrDefault(m => m.GetType() == instanceType);
+                IMod instanceMod = CreateOrGetAllMods().SingleOrDefault(m => m.GetType() == instanceType);
                 if (instanceMod != null)
                     instanceMember.SetValue(mod, mod, null);
             }

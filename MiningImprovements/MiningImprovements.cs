@@ -167,8 +167,7 @@ namespace alexschrod.MiningImprovements
         }
     }
 
-    [Export(typeof(IMod))]
-    public partial class MiningImprovements : Mod
+    public partial class MiningImprovements : IMod
     {
         public const int SafeTorchDistance = 11;
 
@@ -274,7 +273,7 @@ namespace alexschrod.MiningImprovements
             }
         }
 
-        public override IEnumerable<IModification> Modifications
+        public IEnumerable<IModification> Modifications
         {
             get
             {

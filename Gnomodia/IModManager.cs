@@ -2,7 +2,7 @@
  *  Gnomodia
  *
  *  Copyright © 2013 Faark (http://faark.de/)
- *  Copyright © 2013 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
+ *  Copyright © 2013, 2014 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published by
@@ -18,14 +18,21 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using Gnomodia.Events;
 
 namespace Gnomodia
 {
     internal interface IModManager
     {
-        IMod[] Mods { get; }
+        IModMetadata[] ModMetadata { get; }
+        IModMetadata GetModMetadata(IMod mod);
 
+        IMod CreateOrGet(IModMetadata metadata);
+        IMod CreateOrGet(string modId);
+
+        IMod[] CreateOrGetAllMods();
+        
         void OnPreGameInitializeEvent(PreGameInitializeEventArgs args);
         void OnPostGameInitializeEvent(PostGameInitializeEventArgs args);
         void OnPreSaveGameEvent(PreSaveGameEventArgs args);

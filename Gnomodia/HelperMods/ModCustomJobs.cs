@@ -2,7 +2,7 @@
  *  Gnomodia
  *
  *  Copyright © 2013 Faark (http://faark.de/)
- *  Copyright © 2013 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
+ *  Copyright © 2013, 2014 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published by
@@ -70,34 +70,14 @@ namespace Gnomodia.HelperMods
         string JobName { get; }
     }
 
-    [Export(typeof(IMod))]
-    public class ModCustomJobs : SupportMod
+    [GnomodiaMod(
+        Id = "ModCustomJobs",
+        Name = "ModCustomJobs",
+        Author = "alexschrod",
+        Description = "Helper object that makes it easy for mods to create new jobs",
+        Version = AssemblyResources.AssemblyBaseVersion + AssemblyResources.AssemblyPreReleaseVersion + "+" + AssemblyResources.GnomoriaTargetVersion)]
+    public class ModCustomJobs : IMod
     {
-        #region Setup stuff
-        public override string Id
-        {
-            get { return "ModCustomJobs"; }
-        }
-        public override string Author
-        {
-            get
-            {
-                return "alexschrod";
-            }
-        }
-        public override string Description
-        {
-            get
-            {
-                return "Helper object that makes it easy for mods to create new jobs";
-            }
-        }
-        public override Version Version
-        {
-            get { return typeof(ModCustomJobs).Assembly.GetName().Version; }
-        }
-        #endregion
-
         //private readonly Dictionary<string, Type> _modJobTypes = new Dictionary<string, Type>();
         [ImportMany(RequiredCreationPolicy = CreationPolicy.Shared), UsedImplicitly]
         private IEnumerable<Lazy<IModJob, ICustomJobMetadata>> _modJobs;
@@ -130,7 +110,7 @@ namespace Gnomodia.HelperMods
             _modJobTypes.Add(jobName, type);
         }*/
 
-        public override IEnumerable<IModification> Modifications
+        public IEnumerable<IModification> Modifications
         {
             get
             {

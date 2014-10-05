@@ -49,7 +49,7 @@ namespace GnomodiaUI
             gameInjector.InjectSaveLoadCalls();
             //gameInjector.Debug_ManipulateStuff();
 
-            foreach (var modification in ModManager.Mods.SelectMany(mod => mod.Modifications))
+            foreach (var modification in ModManager.CreateOrGetAllMods().SelectMany(mod => mod.Modifications))
             {
                 if (gameInjector.AssemblyContainsType(modification.TargetType))
                 {

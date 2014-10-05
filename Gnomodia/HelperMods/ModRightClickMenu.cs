@@ -2,7 +2,7 @@
  *  Gnomodia
  *
  *  Copyright © 2013 Faark (http://faark.de/)
- *  Copyright © 2013 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
+ *  Copyright © 2013, 2014 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published by
@@ -20,7 +20,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
 using Game.GUI;
@@ -32,8 +31,13 @@ using Gnomodia.Utility;
 
 namespace Gnomodia.HelperMods
 {
-    [Export(typeof(IMod))]
-    public class ModRightClickMenu : SupportMod
+    [GnomodiaMod(
+        Id = "ModRightClickMenu",
+        Name = "ModRightClickMenu",
+        Author = "Faark",
+        Description = "Helper object that makes it easy for other mods to place items in the right click menu under a \"Mods\" menu",
+        Version = AssemblyResources.AssemblyBaseVersion + AssemblyResources.AssemblyPreReleaseVersion + "+" + AssemblyResources.GnomoriaTargetVersion)]
+    public class ModRightClickMenu : IMod
     {
         #region public stuff
         private readonly Dictionary<String, ModMenuItemClickedCallback> _modMenuItems = new Dictionary<string, ModMenuItemClickedCallback>();
@@ -42,32 +46,6 @@ namespace Gnomodia.HelperMods
         private static ModRightClickMenu Instance { get; [UsedImplicitly] set; }
 
         public delegate void ModMenuItemClickedCallback();
-        #endregion
-        #region Setup stuff
-
-        public override string Id
-        {
-            get { return "ModRightClickMenu"; }
-        }
-
-        public override string Author
-        {
-            get
-            {
-                return "Faark";
-            }
-        }
-        public override string Description
-        {
-            get
-            {
-                return "Helper object that makes it easy for other mods to place items in the right click menu under a \"Mods\" menu";
-            }
-        }
-        public override Version Version
-        {
-            get { return typeof(ModRightClickMenu).Assembly.GetName().Version; }
-        }
         #endregion
 
         public void AddButton(string text, ModMenuItemClickedCallback callback)
@@ -86,7 +64,7 @@ namespace Gnomodia.HelperMods
             _modMenuItems.Add(text, callback);
         }
 
-        public override IEnumerable<IModification> Modifications
+        public IEnumerable<IModification> Modifications
         {
             get
             {
