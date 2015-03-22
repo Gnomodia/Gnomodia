@@ -1,7 +1,7 @@
 ﻿/*
  *  Gnomodia
  *
- *  Copyright © 2014 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
+ *  Copyright © 2014, 2015 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published by
@@ -21,7 +21,7 @@ using System;
 
 namespace Gnomodia.Events
 {
-    public class GameInitializeEventArgs : EventArgs
+    public abstract class GameInitializeEventArgs : EventArgs
     {
     }
 }

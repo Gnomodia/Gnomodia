@@ -2,7 +2,7 @@
  *  Gnomodia
  *
  *  Copyright © 2013 Faark (http://faark.de/)
- *  Copyright © 2013 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
+ *  Copyright © 2013-2015 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published by
@@ -25,8 +25,6 @@ using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using Gnomodia.Attributes;
 using Gnomodia.Events;
 using Gnomodia.Utility;
 
@@ -120,18 +118,11 @@ namespace Gnomodia
         }
         public static void PreGenerateMap(Game.Map self, Game.CreateWorldOptions options)
         {
-            //modSaveFile = new ModSaveFile();
-            foreach (var mod in Instance.ModManager.CreateOrGetAllMods())
-            {
-                //mod.PreWorldCreation(modSaveFile.GetDataFor(mod), self, options);
-            }
+            Instance.ModManager.OnPreGenerateMapEvent(new PreGenerateMapEventArgs(self, options));
         }
         public static void PostGenerateMap(Game.Map self, Game.CreateWorldOptions options)
         {
-            foreach (var mod in Instance.ModManager.CreateOrGetAllMods())
-            {
-                //mod.PostWorldCreation(modSaveFile.GetDataFor(mod), self, options);
-            }
+            Instance.ModManager.OnPostGenerateMapEvent(new PostGenerateMapEventArgs(self, options));
         }
 
         public static class Log

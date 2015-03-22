@@ -70,5 +70,5 @@ internal static class AssemblyResources
 {
     internal const string AssemblyBaseVersion = "0.1.0";
     internal const string AssemblyPreReleaseVersion = "-alpha";
-    internal const string GnomoriaTargetVersion = "0.9.10";
+    internal const string GnomoriaTargetVersion = "0.9.17";
 }

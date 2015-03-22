@@ -1,8 +1,7 @@
 ﻿/*
  *  Gnomodia
  *
- *  Copyright © 2013 Faark (http://faark.de/)
- *  Copyright © 2013-2015 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
+ *  Copyright © 2015 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU Lesser General Public License as published by
@@ -18,16 +17,20 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Gnomodia
+using System;
+using Game;
+
+namespace Gnomodia.Events
 {
-    internal partial interface IModManager
+    class PreGenerateMapEventArgs:EventArgs
     {
-        IModMetadata[] ModMetadata { get; }
-        IModMetadata GetModMetadata(IMod mod);
+        public Map Map { get; set; }
+        public CreateWorldOptions CreateWorldOptions { get; set; }
 
-        IMod CreateOrGet(IModMetadata metadata);
-        IMod CreateOrGet(string modId);
-
-        IMod[] CreateOrGetAllMods();
+        public PreGenerateMapEventArgs(Map map, CreateWorldOptions createWorldOptions)
+        {
+            Map = map;
+            CreateWorldOptions = createWorldOptions;
+        }
     }
 }

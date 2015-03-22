@@ -1,7 +1,7 @@
 ﻿/*
  *  Gnomodia
  *
- *  Copyright © 2013 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
+ *  Copyright © 2013-2015 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -132,6 +132,8 @@ namespace Gnomodia
         public void Save()
         {
             ModDataSaveHeader header = new ModDataSaveHeader(_stream, _saveableMods.Keys,_modManager);
+            
+            // Allocate the required header space
             header.WriteHeader();
 
             BinaryFormatter formatter = new BinaryFormatter();
@@ -155,6 +157,8 @@ namespace Gnomodia
                     }
                 }
             }
+
+            // Re-write the header, now with the mods' save positions
             header.WriteHeader();
         }
 
