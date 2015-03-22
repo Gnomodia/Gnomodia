@@ -39,7 +39,7 @@ namespace Gnomodia
 
     public interface IMod
     {
-        IEnumerable<IModification> Modifications { get; }
+        //IEnumerable<IModification> Modifications { get; }
     }
 
     public interface IModMetadata

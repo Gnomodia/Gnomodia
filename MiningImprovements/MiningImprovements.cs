@@ -273,17 +273,7 @@ namespace alexschrod.MiningImprovements
             }
         }
 
-        public IEnumerable<IModification> Modifications
-        {
-            get
-            {
-                yield return new MethodHook(typeof(MineJob).GetMethod("Complete", BindingFlags.Instance | BindingFlags.Public),
-                    Method.Of<MineJob, Character>(MineExtraOre));
-                yield return new MethodHook(typeof(BuildConstructionJob).GetMethod("Complete", BindingFlags.Instance | BindingFlags.Public),
-                    Method.Of<BuildConstructionJob, Character>(AutomaticallyLitStripMining));
-            }
-        }
-
+        [InterceptMethod(typeof(BuildConstructionJob), "Complete", BindingFlags.Instance | BindingFlags.Public)]
         public static void AutomaticallyLitStripMining(BuildConstructionJob buildConstructionJob, Character character)
         {
             Vector3 jobPosition = buildConstructionJob.Position;
@@ -315,6 +305,7 @@ namespace alexschrod.MiningImprovements
             }
         }
 
+        [InterceptMethod(typeof(MineJob), "Complete", BindingFlags.Instance | BindingFlags.Public)]
         public static void MineExtraOre(MineJob mineJob, Character character)
         {
             Vector3 jobPosition = mineJob.Position;

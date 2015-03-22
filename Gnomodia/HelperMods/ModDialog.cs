@@ -52,26 +52,9 @@ namespace Gnomodia.HelperMods
         private static Label s_GnomodiaVersionLabel;
         private static Label s_GnomoriaVersionLabel;
 
-        public IEnumerable<IModification> Modifications
-        {
-            get
-            {
-                yield return new MethodHook(
-                    typeof(HUD).GetMethod("c634754f1b7c29a47f4139684f06df05a", BindingFlags.Instance | BindingFlags.NonPublic),
-                    Method.Of<HUD>(AddHudModButton));
-                yield return new MethodHook(
-                    typeof(MainMenuWindow).GetConstructor(new[] { typeof(Manager) }),
-                    Method.Of<MainMenuWindow, Manager>(AddMainMenuModButton));
-                yield return new MethodHook(
-                    typeof(MainMenuWindow).GetConstructor(new[] { typeof(Manager) }),
-                    Method.Of<MainMenuWindow, Manager>(SetGnomodiaLogo));
-                yield return new MethodHook(
-                    typeof(MainMenuWindow).GetMethod("ceb32813158d52d65f7977184d5fc8c24", BindingFlags.Instance | BindingFlags.NonPublic),
-                    Method.Of<MainMenuWindow, object, System.EventArgs>(Reset));
-            }
-        }
-
         private static readonly FieldInfo HudPanelField = typeof(HUD).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Single(f => f.FieldType == typeof(Panel));
+
+        [InterceptMethod(typeof(HUD), "c634754f1b7c29a47f4139684f06df05a", BindingFlags.Instance | BindingFlags.NonPublic)]
         public static void AddHudModButton(HUD hud)
         {
             s_Hud = hud;
@@ -100,6 +83,8 @@ namespace Gnomodia.HelperMods
         }
 
         private static readonly FieldInfo MainMenuWindowPanelField = typeof(MainMenuWindow).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Single(f => f.FieldType == typeof(Panel));
+
+        [InterceptConstructor(typeof(MainMenuWindow), new[] { typeof(Manager) })]
         public static void AddMainMenuModButton(MainMenuWindow mainMenu, Manager manager)
         {
             Panel buttonPanel = (Panel)MainMenuWindowPanelField.GetValue(mainMenu);
@@ -135,6 +120,7 @@ namespace Gnomodia.HelperMods
             Reset(mainMenu, null, null);
         }
 
+        [InterceptConstructor(typeof(MainMenuWindow), new[] { typeof(Manager) })]
         public static void SetGnomodiaLogo(MainMenuWindow mainMenu, Manager manager)
         {
             Panel buttonPanel = (Panel)MainMenuWindowPanelField.GetValue(mainMenu);
@@ -161,6 +147,7 @@ namespace Gnomodia.HelperMods
             }
         }
 
+        [InterceptMethod(typeof(MainMenuWindow), "ceb32813158d52d65f7977184d5fc8c24", BindingFlags.Instance | BindingFlags.NonPublic)]
         public static void Reset(MainMenuWindow mainMenu, object sender, System.EventArgs eventArgs)
         {
             s_GnomodiaVersionLabel.CalculateWidth();

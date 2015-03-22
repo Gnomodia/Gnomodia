@@ -64,16 +64,6 @@ namespace Gnomodia.HelperMods
             _modMenuItems.Add(text, callback);
         }
 
-        public IEnumerable<IModification> Modifications
-        {
-            get
-            {
-                yield return new MethodHook(
-                    typeof(RightClickMenu).GetConstructor(new Type[] { }),
-                    Method.Of<RightClickMenu>(OnRightClickMenuCreated)
-                );
-            }
-        }
         private static FieldInfo s_RightClickMenuContextMenu;
 
         [EventListener]
@@ -84,6 +74,7 @@ namespace Gnomodia.HelperMods
                 .Single(field => field.FieldType == typeof(ContextMenu));
         }
 
+        [InterceptConstructor(typeof(RightClickMenu))]
         public static void OnRightClickMenuCreated(RightClickMenu rightClickMenu)
         {
             var contextMenu = (ContextMenu)(s_RightClickMenuContextMenu.GetValue(rightClickMenu));

@@ -21,7 +21,9 @@
 using System;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Reflection;
 using Gnomodia;
+using Gnomodia.Attributes;
 using Gnomodia.Utility;
 using GnomodiaUI.Annotations;
 
@@ -49,19 +51,29 @@ namespace GnomodiaUI
             gameInjector.InjectSaveLoadCalls();
             //gameInjector.Debug_ManipulateStuff();
 
-            foreach (var modification in ModManager.CreateOrGetAllMods().SelectMany(mod => mod.Modifications))
+            foreach (var mod in ModManager.CreateOrGetAllMods())
             {
-                if (gameInjector.AssemblyContainsType(modification.TargetType))
+                var interceptedMethods =
+                    from method in mod.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+                    where method.GetCustomAttributes(typeof(InterceptMethodAttribute), false).Any()
+                    select new { Method = method, Attribute = method.GetCustomAttributes(typeof(InterceptMethodAttribute), false).Cast<InterceptMethodAttribute>().Single() };
+
+                foreach (var interceptedMethod in interceptedMethods)
                 {
-                    gameInjector.InjectModification(modification);
-                }
-                else if (libInjector.AssemblyContainsType(modification.TargetType))
-                {
-                    libInjector.InjectModification(modification);
-                }
-                else
-                {
-                    throw new InvalidOperationException(string.Format("Cannot change behavior of type {0}!", modification.TargetType));
+                    var attribute = interceptedMethod.Attribute;
+                    IModification mh = new MethodHook(attribute.InterceptedMethod, interceptedMethod.Method, attribute.HookType, attribute.HookFlags);
+                    if (gameInjector.AssemblyContainsType(mh.TargetType))
+                    {
+                        gameInjector.InjectModification(mh);
+                    }
+                    else if (libInjector.AssemblyContainsType(mh.TargetType))
+                    {
+                        libInjector.InjectModification(mh);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(string.Format("Cannot change behavior of type {0}!", mh.TargetType));
+                    }
                 }
             }
 

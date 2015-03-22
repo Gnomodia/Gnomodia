@@ -110,31 +110,12 @@ namespace Gnomodia.HelperMods
             _modJobTypes.Add(jobName, type);
         }*/
 
-        public IEnumerable<IModification> Modifications
-        {
-            get
-            {
-                yield return new MethodHook(
-                    typeof(TileSelectionManager).GetMethod("Draw"),
-                    Method.Of<TileSelectionManager, SpriteBatch>(OnBeforeDraw),
-                    MethodHookType.RunBefore);
-
-                yield return new MethodHook(
-                    typeof(TileSelectionManager).GetMethod("Draw"),
-                    Method.Of<TileSelectionManager, SpriteBatch>(OnAfterDraw));
-
-                yield return new MethodHook(
-                    typeof(TileSelectionManager).GetMethod("c110ca11c68ce3acc82193edea192a497", BindingFlags.Instance | BindingFlags.NonPublic),
-                    Method.Of<TileSelectionManager, bool>(OnSelectionMade),
-                    MethodHookType.RunBefore,
-                    MethodHookFlags.CanSkipOriginal);
-            }
-        }
-
         private static readonly FieldInfo JobTypeField = typeof(TileSelectionManager).GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
             .Single(f => f.FieldType == typeof(JobType));
 
         private static JobType s_OriginalJobType = JobType.Invalid;
+
+        [InterceptMethod(typeof(TileSelectionManager), "Draw", HookType = MethodHookType.RunBefore)]
         public static void OnBeforeDraw(TileSelectionManager tsm, SpriteBatch sb)
         {
             ModCustomJobs mcj = Instance;
@@ -147,6 +128,7 @@ namespace Gnomodia.HelperMods
             JobTypeField.SetValue(tsm, mcj._customJobs[jobType].JobTypeImpersonator.ImpersonateJobType);
         }
 
+        [InterceptMethod(typeof(TileSelectionManager), "Draw")]
         public static void OnAfterDraw(TileSelectionManager tsm, SpriteBatch sb)
         {
             if (s_OriginalJobType == JobType.Invalid)
@@ -171,6 +153,7 @@ namespace Gnomodia.HelperMods
         private static readonly MethodInfo ClearSelection = typeof(TileSelectionManager)
             .GetMethod("c180092702ef0fc46024523c5dd2ecf0e", BindingFlags.Instance | BindingFlags.NonPublic);
 
+        [InterceptMethod(typeof(TileSelectionManager), "c110ca11c68ce3acc82193edea192a497", BindingFlags.Instance | BindingFlags.NonPublic, HookType = MethodHookType.RunBefore, HookFlags = MethodHookFlags.CanSkipOriginal)]
         public static bool OnSelectionMade(TileSelectionManager tsm)
         {
             ModCustomJobs mcj = Instance;

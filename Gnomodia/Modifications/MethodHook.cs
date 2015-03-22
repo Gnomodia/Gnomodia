@@ -30,14 +30,14 @@ using Gnomodia.Utility;
 
 namespace Gnomodia
 {
-    public class MethodHook : UnmutableMethodModification
+    class MethodHook : UnmutableMethodModification
     {
         public MethodHook(MethodBase intercepted, MethodInfo custom_method, MethodHookType hook_type = MethodHookType.RunAfter, MethodHookFlags hook_flags = MethodHookFlags.None)
             :base(intercepted, custom_method, hook_type, hook_flags)
         {
         }
     }
-    public class BeforeAndAfterMethodHook : ModificationCollection
+    class BeforeAndAfterMethodHook : ModificationCollection
     {
         public override Type TargetType { get { return ((IModification)OnBeforeHook).TargetType; } }
         public MethodHook OnBeforeHook { get; protected set; }

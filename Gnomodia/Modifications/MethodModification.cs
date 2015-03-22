@@ -25,15 +25,15 @@ using System.Reflection;
 
 namespace Gnomodia
 {
-    public interface IModification
+    interface IModification
     {
         Type TargetType { get; }
     }
-    public interface IModificationCollection : IModification, IEnumerable<IModification>
+    interface IModificationCollection : IModification, IEnumerable<IModification>
     {
         IEnumerator<IModification> GetModifications();
     }
-    public abstract class ModificationCollection : IModificationCollection
+    abstract class ModificationCollection : IModificationCollection
     {
         public abstract IEnumerator<IModification> GetModifications();
         public abstract Type TargetType { get; }
@@ -47,7 +47,7 @@ namespace Gnomodia
         }
     }
 
-    public interface IMethodModification : IModification
+    interface IMethodModification : IModification
     {
     }
 

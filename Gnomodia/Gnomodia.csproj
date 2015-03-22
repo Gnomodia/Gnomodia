@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Attributes\EventListenerAttribute.cs" />
     <None Include="ContentMods\CustomTextureManager.cs" />
+    <Compile Include="Attributes\InterceptMethodAttribute.cs" />
     <Compile Include="Attributes\SaveObjectAttribute.cs" />
     <Compile Include="Events\GameInitializeEventArgs.cs" />
     <Compile Include="Events\PostGameInitializeEventArgs.cs" />
