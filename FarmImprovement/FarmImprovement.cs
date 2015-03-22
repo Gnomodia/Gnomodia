@@ -1,34 +1,36 @@
-﻿using System.Collections.Generic;
+﻿/*
+ *  Gnomodia
+ *
+ *  Copyright © 2014-2015 Alexander Krivács Schrøder (https://alexanderschroeder.net/)
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU Lesser General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Lesser General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 using System.Reflection;
 using Game;
 using GameLibrary;
 using Gnomodia;
+using Gnomodia.Attributes;
 using Microsoft.Xna.Framework;
 
 namespace alexschrod.FarmImprovement
 {
-    public partial class FarmImprovement : Mod
+    public partial class FarmImprovement : IMod
     {
-        public override IEnumerable<IModification> Modifications
-        {
-            get
-            {
-                yield return new MethodHook(
-                    typeof(Character).GetMethod("c1c35ff58924ae70eabab0dd7662e5858", BindingFlags.NonPublic | BindingFlags.Instance),
-                    ((ImprovedFarmingDelegate)ImprovedFarming).Method,
-                    MethodHookType.RunBefore,
-                    MethodHookFlags.CanSkipOriginal);
-
-                yield return new MethodHook(
-                    typeof(Farm).GetMethod("c3d3d15a85e881cb4bd5ab83d5a89a58e", BindingFlags.NonPublic | BindingFlags.Instance),
-                    ((CanBePlantedDelegate)CanBePlanted).Method,
-                    MethodHookType.RunBefore,
-                    MethodHookFlags.CanSkipOriginal);
-            }
-        }
-
-        private delegate bool ImprovedFarmingDelegate(Character character, out bool skipOriginal);
         private static readonly FieldInfo JobField = typeof(Character).GetField("c24374358b128544d29691bcd3a78a0be", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        [InterceptMethod(typeof(Character), "c1c35ff58924ae70eabab0dd7662e5858", BindingFlags.NonPublic | BindingFlags.Instance, HookType = MethodHookType.RunBefore, HookFlags = MethodHookFlags.CanSkipOriginal)]
         public static bool ImprovedFarming(Character character, out bool returnValue)
         {
             if (character.Mind.IsSkillAllowed(CharacterSkillType.Farming))
@@ -100,8 +102,9 @@ namespace alexschrod.FarmImprovement
             return null;
         }
 
-        public delegate bool CanBePlantedDelegate(Farm farm, Vector3 cellVector, out bool skipOriginal);
         private static readonly FieldInfo UndergroundField = typeof(Farm).GetField("c4ba7e5072e2505c8522343338a340933", BindingFlags.NonPublic | BindingFlags.Instance);
+        
+        [InterceptMethod(typeof(Farm),"c3d3d15a85e881cb4bd5ab83d5a89a58e", BindingFlags.NonPublic | BindingFlags.Instance, HookType = MethodHookType.RunBefore, HookFlags = MethodHookFlags.CanSkipOriginal)]
         public static bool CanBePlanted(Farm farm, Vector3 cellVector, out bool returnValue)
         {
             if (cellVector == -Vector3.One)
