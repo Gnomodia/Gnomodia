@@ -34,6 +34,11 @@ namespace Gnomodia
     {
         private static RuntimeModController Instance { get; set; }
 
+        public static IMod GetModByType(Type modType)
+        {
+            return Instance.ModManager.CreateOrGet(modType);
+        }
+
         [Import]
         private IModManager ModManager { get; set; }
 

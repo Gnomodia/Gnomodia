@@ -119,14 +119,22 @@ namespace Gnomodia
             {
                 if (!curType.IsPublic && !(curType.IsNested && curType.IsNestedPublic))
                 {
-                    throw new ArgumentException("One of the Types (" + curType.FullName + ") declaring the custom method (" + method.Name + ") is not public, making this method inaccessible!");
+                    throw new InvalidOperationException(string.Format("One of the Types ({0}) declaring the custom method ({1}) is not public, making this method inaccessible!", curType.FullName, method.Name));
                 }
                 curType = curType.DeclaringType;
             }
         }
-        private static string MethodReferenceToString(MethodBase mref)
+        private static string MethodReferenceToString(MethodBase method)
         {
-            return mref.Name + "; Type " + mref.DeclaringType.FullName;
+            var declaringType = method.DeclaringType;
+            if (declaringType != null)
+            {
+                return string.Format("{0}; Type {1}", method.Name, declaringType.FullName);
+            }
+            else
+            {
+                return method.Name;
+            }
         }
 
         public MethodHookType HookType { get; private set; }
@@ -159,8 +167,8 @@ namespace Gnomodia
         }
         protected virtual void Validate_2_Accessibility()
         {
-            if (!(CustomMethod.IsStatic && CustomMethod.IsPublic))
-                throw new ArgumentException("Custom method has to be public & static! " + CustomMethod.Name + " is not.");
+            if (!CustomMethod.IsPublic)
+                throw new ArgumentException("Custom method has to be public! " + CustomMethod.Name + " is not.");
             if (IsCompilerGenerated(CustomMethod))
                 throw new ArgumentException("Custom method can not be compiler generated");
 

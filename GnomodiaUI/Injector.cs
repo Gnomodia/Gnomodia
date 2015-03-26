@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -228,7 +229,7 @@ namespace GnomodiaUI
             }
             return declaring_type;
         }
-        protected MethodDefinition Helper_MethodBase_to_MethodDefinition(MethodBase method)
+        protected MethodDefinition MethodBaseToMethodDefinition(MethodBase method)
         {
             var declaring_type = Helper_Type_to_TypeDefinition(method.DeclaringType);
             var md = (MethodDefinition)declaring_type.Module.LookupToken(method.MetadataToken);
@@ -348,6 +349,11 @@ namespace GnomodiaUI
 
 
         private Dictionary<MethodDefinition, VariableDefinition> localVarsUsedToCacheStoreOutResults = new Dictionary<MethodDefinition, VariableDefinition>();
+
+        private Dictionary<MethodDefinition, VariableDefinition> localVarsUsedToAccessMod = new Dictionary<MethodDefinition, VariableDefinition>();
+
+        private Dictionary<MethodDefinition, Instruction> modVariableLoadedInstruction=new Dictionary<MethodDefinition, Instruction>(); 
+
         protected class HookInjector
         {
             public MethodDefinition OriginalMethod { get; protected set; }
@@ -360,11 +366,11 @@ namespace GnomodiaUI
 
             public ILProcessor ILGen { get; protected set; }
 
-            public HookInjector(Injector injector, MethodDefinition originalMethod, MethodReference customMethod_reference, MethodHookType hookType, MethodHookFlags hookFlags)
+            public HookInjector(Injector injector, MethodDefinition originalMethod, MethodReference customMethodReference, MethodHookType hookType, MethodHookFlags hookFlags)
             {
                 Injector = injector;
                 OriginalMethod = originalMethod;
-                CustomMethodReference = customMethod_reference;
+                CustomMethodReference = customMethodReference;
                 HookType = hookType;
                 HookFlags = hookFlags;
                 GenericArguments = new TypeReference[originalMethod.GenericParameters.Count];
@@ -380,12 +386,12 @@ namespace GnomodiaUI
                 ILGen = OriginalMethod.Body.GetILProcessor();
             }
 
-            protected Instruction currentTargetInstruction;
-            protected virtual IEnumerable<Instruction> CreateInstructions_PreHook()
+            protected Instruction CurrentTargetInstruction;
+            protected virtual IEnumerable<Instruction> CreateInstructionsPreHook()
             {
                 yield break;
             }
-            protected VariableDefinition localVarUsedToChacheOutResult()
+            protected VariableDefinition GetLocalVarUsedToChacheOutResult()
             {
                 VariableDefinition var;
                 if (!Injector.localVarsUsedToCacheStoreOutResults.TryGetValue(OriginalMethod, out var))
@@ -394,24 +400,30 @@ namespace GnomodiaUI
                 }
                 return var;
             }
-            protected virtual IEnumerable<Instruction> CreateInstructions_Hook_LoadArgs()
+            protected virtual IEnumerable<Instruction> CreateInstructionsHookLoadArgs()
             {
-                var arg_cnt = OriginalMethod.Parameters.Count + (OriginalMethod.IsStatic ? 0 : 1);
-                if (arg_cnt > 0)
+                if (CustomMethodReference.HasThis)
+                {
+                    VariableDefinition mod = Injector.localVarsUsedToAccessMod[OriginalMethod];
+                    yield return ILGen.Create(OpCodes.Ldloc, mod);
+                }
+
+                var parameterCount = OriginalMethod.Parameters.Count + (OriginalMethod.IsStatic ? 0 : 1);
+                if (parameterCount > 0)
                 {
                     yield return (ILGen.Create(OpCodes.Ldarg_0));
-                    if (arg_cnt > 1)
+                    if (parameterCount > 1)
                     {
                         yield return (ILGen.Create(OpCodes.Ldarg_1));
-                        if (arg_cnt > 2)
+                        if (parameterCount > 2)
                         {
                             yield return (ILGen.Create(OpCodes.Ldarg_2));
-                            if (arg_cnt > 3)
+                            if (parameterCount > 3)
                             {
                                 yield return (ILGen.Create(OpCodes.Ldarg_3));
-                                if (arg_cnt > 4)
+                                if (parameterCount > 4)
                                 {
-                                    for (var i = 4; i < arg_cnt; i++)
+                                    for (var i = 4; i < parameterCount; i++)
                                     {
                                         yield return (ILGen.Create(OpCodes.Ldarg_S, (byte)i));
                                     }
@@ -422,46 +434,86 @@ namespace GnomodiaUI
                 }
                 if (HookFlags.HasFlag(MethodHookFlags.CanSkipOriginal) && (Helper_TypeReference_to_Type(OriginalMethod.ReturnType) != typeof(void)))
                 {
-                    yield return ILGen.Create(OpCodes.Ldloca_S, localVarUsedToChacheOutResult());
+                    yield return ILGen.Create(OpCodes.Ldloca_S, GetLocalVarUsedToChacheOutResult());
                 }
             }
-            protected virtual IEnumerable<Instruction> CreateInstructions_Hook_Call()
+            protected virtual IEnumerable<Instruction> CreateInstructionsHookCall()
             {
-                yield return Helper.CreateCallInstruction(ILGen, CustomMethodReference, false, GenericArguments);
+                yield return Helper.CreateCallInstruction(ILGen, CustomMethodReference, genericTypes: GenericArguments);
             }
-            protected virtual IEnumerable<Instruction> CreateInstructions_Hook()
+            protected virtual IEnumerable<Instruction> CreateInstructionsHook()
             {
-                return CreateInstructions_Hook_LoadArgs().Union(CreateInstructions_Hook_Call());
+                    return CreateInstructionsHookLoadArgs().Union(CreateInstructionsHookCall());
             }
-            protected virtual IEnumerable<Instruction> CreateInstructions_PostHook()
+            protected virtual IEnumerable<Instruction> CreateInstructionsPostHook()
             {
                 if (HookFlags.HasFlag(MethodHookFlags.CanSkipOriginal))
                 {
-                    yield return ILGen.Create(OpCodes.Brfalse_S, currentTargetInstruction);
+                    yield return ILGen.Create(OpCodes.Brfalse_S, CurrentTargetInstruction);
                     if (Helper_TypeReference_to_Type(OriginalMethod.ReturnType) != typeof(void))
                     {
-                        yield return OriginalMethod.CreateLdloc(localVarUsedToChacheOutResult());
+                        yield return OriginalMethod.CreateLdloc(GetLocalVarUsedToChacheOutResult());
                     }
                     yield return ILGen.Create(OpCodes.Ret);
                 }
-                yield break;
             }
             protected virtual IEnumerable<Instruction> CreateHookInstructions()
             {
-                return CreateInstructions_PreHook().Union(CreateInstructions_Hook()).Union(CreateInstructions_PostHook());
+                return CreateInstructionsPreHook().Union(CreateInstructionsHook()).Union(CreateInstructionsPostHook());
             }
+
+            protected virtual IEnumerable<Instruction> CreateModVariable()
+            {
+                if (!CustomMethodReference.HasThis)
+                {
+                    Injector.modVariableLoadedInstruction[OriginalMethod] = OriginalMethod.Body.Instructions[0];
+                    yield break;
+                }
+
+                VariableDefinition mod;
+                if (Injector.localVarsUsedToAccessMod.TryGetValue(OriginalMethod, out mod))
+                    yield break;
+
+                OriginalMethod.Body.Variables.Add(Injector.localVarsUsedToAccessMod[OriginalMethod] = mod = new VariableDefinition("gnomodiaMod" + CustomMethodReference.DeclaringType.Name, CustomMethodReference.DeclaringType));
+
+                // <ModType> modType = (<ModType>)RuntimeModController.GetModByType(typeof(<ModType>));
+                yield return ILGen.Create(OpCodes.Ldtoken, CustomMethodReference.DeclaringType);
+                yield return ILGen.Create(OpCodes.Call, Injector.Module.Import(Method.Of<RuntimeTypeHandle, Type>(Type.GetTypeFromHandle)));
+                yield return ILGen.Create(OpCodes.Call, Injector.Module.Import(Method.Of<Type, IMod>(RuntimeModController.GetModByType)));
+                yield return ILGen.Create(OpCodes.Castclass, CustomMethodReference.DeclaringType);
+                var modVariableLoadedInstruction = ILGen.Create(OpCodes.Stloc, mod);
+                Injector.modVariableLoadedInstruction[OriginalMethod] = modVariableLoadedInstruction;
+                yield return modVariableLoadedInstruction;
+            } 
 
             internal void Inject()
             {
+                if (HookType == MethodHookType.RunBefore || HookType == MethodHookType.RunAfter)
+                {
+                    CurrentTargetInstruction = OriginalMethod.Body.Instructions[0];
+
+                    var createModVariable = CreateModVariable().ToList();
+                    if (createModVariable.Count > 0)
+                    {
+                        Helper.InjectInstructionsBefore(
+                            ILGen,
+                            CurrentTargetInstruction,
+                            createModVariable
+                            );
+                        Injector.modVariableLoadedInstruction[OriginalMethod] =
+                            Injector.modVariableLoadedInstruction[OriginalMethod].Next;
+                    }
+                }
+
                 switch (HookType)
                 {
                     case MethodHookType.RunBefore:
-                        currentTargetInstruction = OriginalMethod.Body.Instructions[0];
+                        CurrentTargetInstruction = Injector.modVariableLoadedInstruction[OriginalMethod];
                         Helper.InjectInstructionsBefore(
                             ILGen,
-                            currentTargetInstruction,
+                            CurrentTargetInstruction,
                             CreateHookInstructions()
-                            );
+                        );
                         break;
                     case MethodHookType.RunAfter:
                         //scan for all RET's and insert our call before it...
@@ -469,11 +521,11 @@ namespace GnomodiaUI
                         {
                             if (OriginalMethod.Body.Instructions[i].OpCode == OpCodes.Ret)
                             {
-                                currentTargetInstruction = OriginalMethod.Body.Instructions[i];
-                                var newInstructions = CreateHookInstructions();
+                                CurrentTargetInstruction = OriginalMethod.Body.Instructions[i];
+                                var newInstructions = CreateHookInstructions().ToList();
                                 Helper.InjectInstructionsBefore(
                                     ILGen,
-                                    currentTargetInstruction,
+                                    CurrentTargetInstruction,
                                     newInstructions
                                     );
                                 i += newInstructions.Count();
@@ -484,9 +536,9 @@ namespace GnomodiaUI
                         OriginalMethod.Body.Instructions.Clear();
                         OriginalMethod.Body.ExceptionHandlers.Clear();
                         OriginalMethod.Body.Variables.Clear();
-                        currentTargetInstruction = ILGen.Create(OpCodes.Ret);
-                        OriginalMethod.Body.Instructions.Add(currentTargetInstruction);
-                        Helper.InjectInstructionsBefore(ILGen, currentTargetInstruction, CreateHookInstructions());
+                        CurrentTargetInstruction = ILGen.Create(OpCodes.Ret);
+                        OriginalMethod.Body.Instructions.Add(CurrentTargetInstruction);
+                        Helper.InjectInstructionsBefore(ILGen, CurrentTargetInstruction, CreateHookInstructions());
                         break;
                     default:
                         throw new NotImplementedException("Only Before and After & replace are implemented, yet");
@@ -503,7 +555,7 @@ namespace GnomodiaUI
             {
                 this.instructionData = instructionData;
             }
-            protected override IEnumerable<Instruction> CreateInstructions_Hook_LoadArgs()
+            protected override IEnumerable<Instruction> CreateInstructionsHookLoadArgs()
             {
                 return instructionData
                     .Select(instr => instr.Item2 == null ? ILGen.Create(instr.Item1) : ILGen.Create(instr.Item1, instr.Item2.Value));
@@ -512,34 +564,46 @@ namespace GnomodiaUI
             }
         }
 
-
-        /*protected void Inject_Hook(
-            MethodDefinition originalMethod,
-            MethodReference customMethod_reference,
-            int arguments_to_load_count,
-            MethodHookType hookType,
-            MethodHookFlags hookFlags
-            )
-        {
-        }*/
-        protected void Inject_Hook(
+        protected void InjectStaticHook(
           MethodDefinition originalMethod,
-          MethodReference customMethod_reference,
+          MethodReference customMethodReference,
           MethodHookType hookType,
-          MethodHookFlags hookFlags
-          )
+          MethodHookFlags hookFlags)
         {
-            var hooker = new HookInjector(this, originalMethod, customMethod_reference, hookType, hookFlags);
+            var hooker = new HookInjector(this, originalMethod, customMethodReference, hookType, hookFlags);
             hooker.Inject();
         }
-        protected void Inject_Hook(MethodHook hook)
+
+        private void InjectInstanceHook(
+            MethodDefinition originalMethod,
+            MethodReference customMethodReference,
+            MethodHookType hookType,
+            MethodHookFlags hookFlags)
         {
-            Inject_Hook(
-                Helper_MethodBase_to_MethodDefinition(hook.InterceptedMethod),
-                Module.Import(hook.CustomMethod),
-                hook.HookType,
-                hook.HookFlags
-                );
+            var hooker = new HookInjector(this, originalMethod, customMethodReference, hookType, hookFlags);
+            hooker.Inject();
+        }
+
+        protected void InjectHook(MethodHook hook)
+        {
+            if (hook.IsStaticInterception)
+            {
+                InjectStaticHook(
+                    MethodBaseToMethodDefinition(hook.InterceptedMethod),
+                    Module.Import(hook.CustomMethod),
+                    hook.HookType,
+                    hook.HookFlags
+                    );
+            }
+            else
+            {
+                InjectInstanceHook(
+                    MethodBaseToMethodDefinition(hook.InterceptedMethod),
+                    Module.Import(hook.CustomMethod),
+                    hook.HookType,
+                    hook.HookFlags
+                    );
+            }
         }
 
         protected void Inject_Virtual(MethodAddVirtual methodAddVirtual)
@@ -637,7 +701,7 @@ namespace GnomodiaUI
                 {
                     newMethod.Body.Instructions.Add(i);
                 }
-                Inject_Hook(
+                InjectStaticHook(
                     newMethod,
                     lookedUpFunc,
                     methodAddVirtual.HookType,
@@ -682,7 +746,7 @@ namespace GnomodiaUI
             var hooker = new CustomLoadArgsHookInjector(
                 this,
                 instructionData,
-                Helper_MethodBase_to_MethodDefinition(methodRefHook.InterceptedMethod),
+                MethodBaseToMethodDefinition(methodRefHook.InterceptedMethod),
                 Module.Import(methodRefHook.CustomMethod),
                 methodRefHook.HookType,
                 methodRefHook.HookFlags
@@ -757,7 +821,7 @@ namespace GnomodiaUI
 
         //protected void Inject_ClassCreationHook(ClassCreationHook classCreationHook)
         //{
-        //    var meth = Helper_MethodBase_to_MethodDefinition(classCreationHook.InterceptCreationInMethod);
+        //    var meth = MethodBaseToMethodDefinition(classCreationHook.InterceptCreationInMethod);
         //    //var conType = Module.Import(classCreationHook.ClassToInterceptCreation);
         //    var ilgen = meth.Body.GetILProcessor();
         //    for (var i = 0; i < meth.Body.Instructions.Count; i++)
@@ -785,7 +849,7 @@ namespace GnomodiaUI
 
             if (modification is MethodHook)
             {
-                Inject_Hook(modification as MethodHook);
+                InjectHook(modification as MethodHook);
             }
             else if (modification is MethodAddVirtual)
             {
@@ -830,7 +894,7 @@ namespace GnomodiaUI
     class GnomoriaExeInjector : Injector
     {
         public GnomoriaExeInjector(FileInfo gnomoriaExecutable) : base(gnomoriaExecutable) { }
-        
+
         private void Inject_TryCatchWrapperAroundEverything(MethodDefinition methodToWrap, Func<ILProcessor, VariableDefinition, Instruction[]> getIlCallback, Type exceptionType = null)
         {
             if (exceptionType == null)
@@ -869,7 +933,7 @@ namespace GnomodiaUI
 
             methodToWrap.Body.ExceptionHandlers.Add(handler);
         }
-        
+
         internal void Inject_AddHighDefXnaProfile()
         {
             Module.Resources.Add(new EmbeddedResource("Microsoft.Xna.Framework.RuntimeProfile", ManifestResourceAttributes.Public, Encoding.ASCII.GetBytes("Windows.v4.0.HiDef\n")));
@@ -880,12 +944,12 @@ namespace GnomodiaUI
         {
             TypeDefinition runtimeModControllerTypeDefinition = Module.Import(typeof(RuntimeModController)).Resolve();
 
-            Inject_Hook(
+            InjectStaticHook(
                 Module.GetType("Game.Map").Methods.Single(m => m.Name == "GenerateMap"),
                 Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PreGenerateMap")),
                 MethodHookType.RunBefore,
                 MethodHookFlags.None);
-            Inject_Hook(
+            InjectStaticHook(
                 Module.GetType("Game.Map").Methods.Single(m => m.Name == "GenerateMap"),
                 Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PostGenerateMap")),
                 MethodHookType.RunAfter,
@@ -895,23 +959,23 @@ namespace GnomodiaUI
         internal void InjectSaveLoadCalls()
         {
             TypeDefinition runtimeModControllerTypeDefinition = Module.Import(typeof(RuntimeModController)).Resolve();
-            
-            Inject_Hook(
+
+            InjectStaticHook(
                 Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "LoadGame"),
                 Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PreLoadGame")),
                 MethodHookType.RunBefore,
                 MethodHookFlags.None);
-            Inject_Hook(
+            InjectStaticHook(
                 Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "LoadGame"),
                 Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PostLoadGame")),
                 MethodHookType.RunAfter,
                 MethodHookFlags.None);
-            Inject_Hook(
+            InjectStaticHook(
                  Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "SaveGame"),
                 Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PreSaveGame")),
                  MethodHookType.RunBefore,
                  MethodHookFlags.None);
-            Inject_Hook(
+            InjectStaticHook(
                  Module.GetType("Game.GnomanEmpire").Methods.Single(m => m.Name == "SaveGame"),
                 Module.Import(runtimeModControllerTypeDefinition.Methods.Single(m => m.Name == "PostSaveGame")),
                  MethodHookType.RunAfter,
@@ -971,7 +1035,7 @@ namespace GnomodiaUI
 
             // Add the call to our initialize method into the new method
             //
-            // RuntimeModController.Initialize()
+            // RuntimeModController.Initialize(args)
             //
             var ilProcessor = initializeModdingMethod.Body.GetILProcessor();
             ilProcessor.Append(ilProcessor.Create(OpCodes.Ldarg_0));

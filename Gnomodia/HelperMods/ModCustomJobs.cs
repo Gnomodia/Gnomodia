@@ -28,7 +28,6 @@ using Game.GUI;
 using Gnomodia.Annotations;
 using Gnomodia.Attributes;
 using Gnomodia.Events;
-using Gnomodia.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -85,16 +84,6 @@ namespace Gnomodia.HelperMods
         [Instance]
         private static ModCustomJobs Instance { get; [UsedImplicitly] set; }
 
-        public ModCustomJobs()
-        {
-            //ModEnvironment.ResetSetupData += (sender, args) => _modJobTypes.Clear();
-        }
-
-        /*public static void AddJob<T>(string jobName) where T : IModJob, new()
-        {
-            Instance.AddJob(jobName, typeof(T));
-        }*/
-
         public static JobType GetJobType(string jobName)
         {
             return Instance.GetJob(jobName);
@@ -105,37 +94,30 @@ namespace Gnomodia.HelperMods
             return _customJobTypes[jobName];
         }
 
-        /*private void AddJob(string jobName, Type type)
-        {
-            _modJobTypes.Add(jobName, type);
-        }*/
-
         private static readonly FieldInfo JobTypeField = typeof(TileSelectionManager).GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
             .Single(f => f.FieldType == typeof(JobType));
 
-        private static JobType s_OriginalJobType = JobType.Invalid;
+        private JobType _originalJobType = JobType.Invalid;
 
         [InterceptMethod(typeof(TileSelectionManager), "Draw", HookType = MethodHookType.RunBefore)]
-        public static void OnBeforeDraw(TileSelectionManager tsm, SpriteBatch sb)
+        public void OnBeforeDraw(TileSelectionManager tsm, SpriteBatch sb)
         {
-            ModCustomJobs mcj = Instance;
-
             JobType jobType = (JobType)JobTypeField.GetValue(tsm);
-            if (jobType <= mcj._maxJobType)
+            if (jobType <= _maxJobType)
                 return;
 
-            s_OriginalJobType = jobType;
-            JobTypeField.SetValue(tsm, mcj._customJobs[jobType].JobTypeImpersonator.ImpersonateJobType);
+            _originalJobType = jobType;
+            JobTypeField.SetValue(tsm, _customJobs[jobType].JobTypeImpersonator.ImpersonateJobType);
         }
 
         [InterceptMethod(typeof(TileSelectionManager), "Draw")]
-        public static void OnAfterDraw(TileSelectionManager tsm, SpriteBatch sb)
+        public void OnAfterDraw(TileSelectionManager tsm, SpriteBatch sb)
         {
-            if (s_OriginalJobType == JobType.Invalid)
+            if (_originalJobType == JobType.Invalid)
                 return;
 
-            JobTypeField.SetValue(tsm, s_OriginalJobType);
-            s_OriginalJobType = JobType.Invalid;
+            JobTypeField.SetValue(tsm, _originalJobType);
+            _originalJobType = JobType.Invalid;
         }
 
         private static readonly FieldInfo JobStartPosition = typeof(TileSelectionManager).GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
@@ -147,29 +129,23 @@ namespace Gnomodia.HelperMods
         private static readonly FieldInfo SelectionStartPosition = typeof(TileSelectionManager).GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
             .Single(f => f.Name == "cf4dfc98da7de3fc88f14ceaebf25caee");
 
-        /*private static readonly FieldInfo OtherVector2 = typeof(TileSelectionManager).GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
-            .Single(f => f.Name == "cf7989fad7e865caea1c38bc298778e85");*/
-
         private static readonly MethodInfo ClearSelection = typeof(TileSelectionManager)
             .GetMethod("c180092702ef0fc46024523c5dd2ecf0e", BindingFlags.Instance | BindingFlags.NonPublic);
 
         [InterceptMethod(typeof(TileSelectionManager), "c110ca11c68ce3acc82193edea192a497", BindingFlags.Instance | BindingFlags.NonPublic, HookType = MethodHookType.RunBefore, HookFlags = MethodHookFlags.CanSkipOriginal)]
-        public static bool OnSelectionMade(TileSelectionManager tsm)
+        public bool OnSelectionMade(TileSelectionManager tsm)
         {
-            ModCustomJobs mcj = Instance;
-
             JobType jobType = (JobType)JobTypeField.GetValue(tsm);
-            if (jobType <= mcj._maxJobType)
+            if (jobType <= _maxJobType)
                 return false;
 
             Vector3 startPosition = (Vector3)JobStartPosition.GetValue(tsm);
             Vector3 endPosition = (Vector3)JobEndPosition.GetValue(tsm);
             Vector3 selectionStartPosition = (Vector3)SelectionStartPosition.GetValue(tsm);
-            //Vector3 otherVector2 = (Vector3)OtherVector2.GetValue(tsm);
 
             Rectangle jobArea = new Rectangle((int)startPosition.X, (int)startPosition.Y, (int)(endPosition.X - startPosition.X), (int)(endPosition.Y - startPosition.Y));
 
-            IModJob modJob = mcj._customJobs[jobType];
+            IModJob modJob = _customJobs[jobType];
             if (modJob.CreateJobs(jobArea, (int)endPosition.Z, selectionStartPosition))
                 ClearSelection.Invoke(tsm, new object[0]);
             return true;

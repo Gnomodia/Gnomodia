@@ -18,6 +18,8 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
+
 namespace Gnomodia
 {
     internal partial interface IModManager
@@ -29,5 +31,6 @@ namespace Gnomodia
         IMod CreateOrGet(string modId);
 
         IMod[] CreateOrGetAllMods();
+        IMod CreateOrGet(Type modType);
     }
 }

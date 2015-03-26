@@ -62,6 +62,12 @@ namespace Gnomodia
             return _mods.Select(m => m.Value).ToArray();
         }
 
+        public IMod CreateOrGet(Type modType)
+        {
+            var lazyMod = _mods.SingleOrDefault(m => m.Value.GetType() == modType);
+            return lazyMod != null ? lazyMod.Value : null;
+        }
+
         public void OnImportsSatisfied()
         {
             InitializeMods();

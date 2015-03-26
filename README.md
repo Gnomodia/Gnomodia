@@ -5,7 +5,7 @@ Gnomodia is a modding framework for the game Gnomoria. Gnomodia is based on a [m
 
 The main goal of Gnomodia is to simplify making changes to the game by modders and to make it easier for both modders and users to have multiple mods running at the same time without there being an incompatibility in how these modifications are done.
 
-Gnomodia is a work in progress, and while it is completely functional, the API and the feature set is prone to change at any moment. While we will try to retain backwards compatibility, this is no guarantee.
+Gnomodia is a work in progress, and while it is completely functional, the API and the feature set is prone to change at any moment. While we will try to retain backwards compatibility as the framework develops, this is no guarantee at this point.
 
 Licensing
 ---------

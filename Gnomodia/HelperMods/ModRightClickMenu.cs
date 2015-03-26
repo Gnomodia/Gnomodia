@@ -24,10 +24,8 @@ using System.Linq;
 using System.Reflection;
 using Game.GUI;
 using Game.GUI.Controls;
-using Gnomodia.Annotations;
 using Gnomodia.Attributes;
 using Gnomodia.Events;
-using Gnomodia.Utility;
 
 namespace Gnomodia.HelperMods
 {
@@ -41,9 +39,6 @@ namespace Gnomodia.HelperMods
     {
         #region public stuff
         private readonly Dictionary<String, ModMenuItemClickedCallback> _modMenuItems = new Dictionary<string, ModMenuItemClickedCallback>();
-
-        [Instance]
-        private static ModRightClickMenu Instance { get; [UsedImplicitly] set; }
 
         public delegate void ModMenuItemClickedCallback();
         #endregion
@@ -64,26 +59,26 @@ namespace Gnomodia.HelperMods
             _modMenuItems.Add(text, callback);
         }
 
-        private static FieldInfo s_RightClickMenuContextMenu;
+        private FieldInfo _rightClickMenuContextMenu;
 
         [EventListener]
         public void InitializeRightClickMenu(object sender, PreGameInitializeEventArgs eventArgs)
         {
-            s_RightClickMenuContextMenu = typeof(RightClickMenu)
+            _rightClickMenuContextMenu = typeof(RightClickMenu)
                 .GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
                 .Single(field => field.FieldType == typeof(ContextMenu));
         }
 
         [InterceptConstructor(typeof(RightClickMenu))]
-        public static void OnRightClickMenuCreated(RightClickMenu rightClickMenu)
+        public void OnRightClickMenuCreated(RightClickMenu rightClickMenu)
         {
-            var contextMenu = (ContextMenu)(s_RightClickMenuContextMenu.GetValue(rightClickMenu));
+            var contextMenu = (ContextMenu)(_rightClickMenuContextMenu.GetValue(rightClickMenu));
             var modsGroup = new MenuItem("Mods");
-            foreach (var modMenuItem in Instance._modMenuItems)
+            foreach (var modMenuItem in _modMenuItems)
             {
                 AddMenuItem(modMenuItem, modsGroup);
             }
-            if (!Instance._modMenuItems.Any())
+            if (!_modMenuItems.Any())
             {
                 modsGroup.Enabled = false;
             }

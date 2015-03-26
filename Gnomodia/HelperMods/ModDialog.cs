@@ -17,7 +17,6 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
@@ -42,22 +41,19 @@ namespace Gnomodia.HelperMods
         Version = AssemblyResources.AssemblyBaseVersion + AssemblyResources.AssemblyPreReleaseVersion + "+" + AssemblyResources.GnomoriaTargetVersion)]
     public class ModDialog : IMod
     {
-        [Instance]
-        private static ModDialog Instance { get; [UsedImplicitly] set; }
-
         [Import]
         private IModManager ModManager { get; set; }
 
-        private static HUD s_Hud;
-        private static Label s_GnomodiaVersionLabel;
-        private static Label s_GnomoriaVersionLabel;
+        private HUD _hud;
+        private Label _gnomodiaVersionLabel;
+        private Label _gnomoriaVersionLabel;
 
         private static readonly FieldInfo HudPanelField = typeof(HUD).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Single(f => f.FieldType == typeof(Panel));
 
         [InterceptMethod(typeof(HUD), "c634754f1b7c29a47f4139684f06df05a", BindingFlags.Instance | BindingFlags.NonPublic)]
-        public static void AddHudModButton(HUD hud)
+        public void AddHudModButton(HUD hud)
         {
-            s_Hud = hud;
+            _hud = hud;
 
             Panel buttonPanel = (Panel)HudPanelField.GetValue(hud);
 
@@ -85,7 +81,7 @@ namespace Gnomodia.HelperMods
         private static readonly FieldInfo MainMenuWindowPanelField = typeof(MainMenuWindow).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Single(f => f.FieldType == typeof(Panel));
 
         [InterceptConstructor(typeof(MainMenuWindow), new[] { typeof(Manager) })]
-        public static void AddMainMenuModButton(MainMenuWindow mainMenu, Manager manager)
+        public void AddMainMenuModButton(MainMenuWindow mainMenu, Manager manager)
         {
             Panel buttonPanel = (Panel)MainMenuWindowPanelField.GetValue(mainMenu);
 
@@ -106,22 +102,22 @@ namespace Gnomodia.HelperMods
 
             exitButton.Top = modsButton.Top + modsButton.Height + modsButton.Margins.Bottom + exitButton.Margins.Top;
 
-            if (!mainMenu.FindControlRecursive(out s_GnomoriaVersionLabel, l => l.Text.StartsWith("v")))
+            if (!mainMenu.FindControlRecursive(out _gnomoriaVersionLabel, l => l.Text.StartsWith("v")))
                 return;
 
-            s_GnomoriaVersionLabel.Text = "Gnomoria " + s_GnomoriaVersionLabel.Text;
+            _gnomoriaVersionLabel.Text = "Gnomoria " + _gnomoriaVersionLabel.Text;
 
-            s_GnomodiaVersionLabel = new Label(manager);
-            s_GnomodiaVersionLabel.Init();
-            s_GnomodiaVersionLabel.Alignment = Alignment.MiddleRight;
-            s_GnomodiaVersionLabel.Text = "Gnomodia v" + typeof(ModDialog).Assembly.GetInformationalVersion();
-            mainMenu.Add(s_GnomodiaVersionLabel);
+            _gnomodiaVersionLabel = new Label(manager);
+            _gnomodiaVersionLabel.Init();
+            _gnomodiaVersionLabel.Alignment = Alignment.MiddleRight;
+            _gnomodiaVersionLabel.Text = "Gnomodia v" + typeof(ModDialog).Assembly.GetInformationalVersion();
+            mainMenu.Add(_gnomodiaVersionLabel);
 
             Reset(mainMenu, null, null);
         }
 
         [InterceptConstructor(typeof(MainMenuWindow), new[] { typeof(Manager) })]
-        public static void SetGnomodiaLogo(MainMenuWindow mainMenu, Manager manager)
+        public void SetGnomodiaLogo(MainMenuWindow mainMenu, Manager manager)
         {
             Panel buttonPanel = (Panel)MainMenuWindowPanelField.GetValue(mainMenu);
 
@@ -148,30 +144,30 @@ namespace Gnomodia.HelperMods
         }
 
         [InterceptMethod(typeof(MainMenuWindow), "ceb32813158d52d65f7977184d5fc8c24", BindingFlags.Instance | BindingFlags.NonPublic)]
-        public static void Reset(MainMenuWindow mainMenu, object sender, System.EventArgs eventArgs)
+        public void Reset(MainMenuWindow mainMenu, object sender, System.EventArgs eventArgs)
         {
-            s_GnomodiaVersionLabel.CalculateWidth();
-            s_GnomodiaVersionLabel.Left = mainMenu.ClientWidth - s_GnomodiaVersionLabel.Width - s_GnomodiaVersionLabel.Margins.Right;
-            s_GnomodiaVersionLabel.Top = s_GnomoriaVersionLabel.Top;
+            _gnomodiaVersionLabel.CalculateWidth();
+            _gnomodiaVersionLabel.Left = mainMenu.ClientWidth - _gnomodiaVersionLabel.Width - _gnomodiaVersionLabel.Margins.Right;
+            _gnomodiaVersionLabel.Top = _gnomoriaVersionLabel.Top;
 
-            s_GnomoriaVersionLabel.CalculateWidth();
-            s_GnomoriaVersionLabel.Left = mainMenu.ClientWidth - s_GnomoriaVersionLabel.Width - s_GnomoriaVersionLabel.Margins.Right;
-            s_GnomoriaVersionLabel.Top = s_GnomodiaVersionLabel.Top - s_GnomodiaVersionLabel.Margins.Top - 11 - s_GnomoriaVersionLabel.Margins.Bottom;
+            _gnomoriaVersionLabel.CalculateWidth();
+            _gnomoriaVersionLabel.Left = mainMenu.ClientWidth - _gnomoriaVersionLabel.Width - _gnomoriaVersionLabel.Margins.Right;
+            _gnomoriaVersionLabel.Top = _gnomodiaVersionLabel.Top - _gnomodiaVersionLabel.Margins.Top - 11 - _gnomoriaVersionLabel.Margins.Bottom;
         }
 
-        private static void MainMenuModsButtonClick(object sender, EventArgs e)
+        private void MainMenuModsButtonClick(object sender, EventArgs e)
         {
-            GnomanEmpire.Instance.GuiManager.MenuStack.PushWindow(new ModsMenu(GnomanEmpire.Instance.GuiManager.Manager, Instance.ModManager));
+            GnomanEmpire.Instance.GuiManager.MenuStack.PushWindow(new ModsMenu(GnomanEmpire.Instance.GuiManager.Manager, ModManager));
         }
 
-        private static void ModsButtonOnClick(object sender, EventArgs eventArgs)
+        private void ModsButtonOnClick(object sender, EventArgs eventArgs)
         {
             InGameHUD inGameHud = GnomanEmpire.Instance.GuiManager.HUD;
             bool isOtherWindow = !(inGameHud.ActiveWindow is ModDialogUI);
             inGameHud.CloseWindow();
             if (isOtherWindow)
             {
-                inGameHud.ShowWindow(new ModDialogUI(s_Hud.Manager, Instance.ModManager));
+                inGameHud.ShowWindow(new ModDialogUI(_hud.Manager, ModManager));
             }
         }
     }
