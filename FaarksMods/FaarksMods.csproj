@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,9 +10,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Faark.Gnomoria.Mods</RootNamespace>
     <AssemblyName>Faark.Gnomoria.Mods</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PlatformTarget>x86</PlatformTarget>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -23,6 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <DebugType>pdbonly</DebugType>
@@ -32,15 +34,14 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Gnomoria">
-      <HintPath>..\Gnomoria\Gnomoria.exe</HintPath>
-      <Private>False</Private>
+      <HintPath>..\lib\Gnomoria\Gnomoria.exe</HintPath>
     </Reference>
     <Reference Include="gnomorialib">
-      <HintPath>..\Gnomoria\gnomorialib.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\lib\Gnomoria\gnomorialib.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
@@ -89,13 +90,6 @@
     <Compile Include="Wip\Ideas\ShittyMod.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Gnomodia\Gnomodia.csproj">
-      <Project>{665F54A4-0AF4-471C-9FF0-89D801BCDB9C}</Project>
-      <Name>Gnomodia</Name>
-      <Private>False</Private>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Disabled\BugStuff\w10_loadtimePlusMercBug.sav" />
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +100,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Wip\Ideas\MoreIdeas.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Gnomodia\Gnomodia.csproj">
+      <Project>{665f54a4-0af4-471c-9ff0-89d801bcdb9c}</Project>
+      <Name>Gnomodia</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
