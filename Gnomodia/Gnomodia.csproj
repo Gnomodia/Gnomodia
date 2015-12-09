@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Gnomodia</RootNamespace>
     <AssemblyName>Gnomodia</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PlatformTarget>x86</PlatformTarget>
     <TargetFrameworkProfile />
@@ -38,14 +38,13 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Gnomoria">
-      <HintPath>..\Gnomoria\Gnomoria.exe</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="gnomorialib, Version=0.8.35.0, Culture=neutral, processorArchitecture=x86">
+    <Reference Include="Gnomoria, Version=0.9.18.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Gnomoria\gnomorialib.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\lib\Gnomoria\Gnomoria.exe</HintPath>
+    </Reference>
+    <Reference Include="gnomorialib, Version=0.9.18.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\Gnomoria\gnomorialib.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />

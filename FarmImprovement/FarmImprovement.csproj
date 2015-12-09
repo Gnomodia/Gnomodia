@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>alexschrod.FarmImprovement</RootNamespace>
     <AssemblyName>FarmImprovement</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -51,10 +51,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Gnomoria">
-      <HintPath>E:\Games\Steam\steamapps\common\Gnomoria\Gnomoria.exe</HintPath>
+      <HintPath>..\lib\Gnomoria\Gnomoria.exe</HintPath>
     </Reference>
     <Reference Include="gnomorialib">
-      <HintPath>E:\Games\Steam\steamapps\common\Gnomoria\gnomorialib.dll</HintPath>
+      <HintPath>..\lib\Gnomoria\gnomorialib.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />

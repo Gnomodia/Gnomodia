@@ -36,6 +36,14 @@ namespace Gnomodia
             :base(intercepted, custom_method, hook_type, hook_flags)
         {
         }
+
+        public bool IsStaticInterception
+        {
+            get
+            {
+                return this.InterceptedMethod.IsStatic;
+            }
+        }
     }
     class BeforeAndAfterMethodHook : ModificationCollection
     {

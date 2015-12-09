@@ -30,6 +30,7 @@ using Gnomodia.Attributes;
 using Gnomodia.Events;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using GameLibrary;
 
 namespace Gnomodia.HelperMods
 {

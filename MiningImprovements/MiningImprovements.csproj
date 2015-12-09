@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>alexschrod.MiningImprovements</RootNamespace>
     <AssemblyName>MiningImprovements</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -50,13 +50,11 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Gnomoria, Version=0.9.10.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Gnomoria\Gnomoria.exe</HintPath>
+    <Reference Include="Gnomoria">
+      <HintPath>..\lib\Gnomoria\Gnomoria.exe</HintPath>
     </Reference>
-    <Reference Include="gnomorialib, Version=0.9.10.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Gnomoria\gnomorialib.dll</HintPath>
+    <Reference Include="gnomorialib">
+      <HintPath>..\lib\Gnomoria\gnomorialib.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
